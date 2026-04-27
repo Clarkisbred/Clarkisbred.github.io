@@ -231,28 +231,108 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
 }
 
 /* ── HAMBURGER ── */
-.hamburger { display: none; flex-direction: column; justify-content: center; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; width: 32px; height: 32px; }
-.hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: transform 0.3s, opacity 0.3s; }
+.hamburger {
+  display: none; flex-direction: column; justify-content: center;
+  gap: 5px; background: none; border: none; cursor: pointer;
+  padding: 6px; width: 36px; height: 36px; z-index: 310;
+}
+.hamburger span {
+  display: block; width: 22px; height: 2px;
+  background: var(--text); border-radius: 2px;
+  transition: transform 0.35s cubic-bezier(.77,0,.18,1), opacity 0.25s;
+  transform-origin: center;
+}
 .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
 .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* ── MOBILE MENU OVERLAY ── */
-.mobile-menu {
-  display: none; position: fixed; inset: 0; z-index: 200;
-  background: var(--bg); flex-direction: column; align-items: center; justify-content: center;
-  gap: 0; opacity: 0; transition: opacity 0.25s;
+/* ── BACKDROP (dark blurred overlay behind drawer) ── */
+.menu-backdrop {
+  display: none;
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition: background 0.35s ease, backdrop-filter 0.35s ease;
 }
-.mobile-menu.open { opacity: 1; }
-.mobile-close { position: absolute; top: 1.2rem; right: 1.5rem; background: none; border: none; font-size: 1.4rem; color: var(--text3); cursor: pointer; padding: 0.5rem; }
-.mobile-duck { font-size: 3rem; margin-bottom: 2rem; animation: floatImg 4s ease-in-out infinite; }
-.mobile-nav { display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%; }
-.mobile-link { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 8vw, 2.4rem); color: var(--text); text-decoration: none; padding: 0.7rem 2rem; text-align: center; letter-spacing: -0.01em; border-bottom: 1px solid var(--border); width: 100%; max-width: 320px; transition: color 0.2s; }
+.menu-backdrop.open {
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ── DRAWER PANEL (slides in from right) ── */
+.mobile-menu {
+  display: none;
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(320px, 85vw);
+  z-index: 300;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  flex-direction: column;
+  padding: 5rem 2rem 2.5rem;
+  transform: translateX(100%);
+  transition: transform 0.38s cubic-bezier(.77,0,.18,1);
+  box-shadow: -12px 0 40px rgba(0,0,0,0.12);
+  overflow-y: auto;
+}
+.mobile-menu.open { transform: translateX(0); }
+
+/* Drawer header */
+.drawer-header {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.drawer-logo { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--text); }
+.mobile-close {
+  background: none; border: 1px solid var(--border);
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; color: var(--text3); cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.mobile-close:hover { background: var(--bg2); color: var(--text); }
+
+/* Nav links inside drawer */
+.mobile-nav { display: flex; flex-direction: column; gap: 0; margin-top: 1rem; }
+.mobile-link {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.6rem; letter-spacing: -0.01em;
+  color: var(--text); text-decoration: none;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  transition: color 0.2s, padding-left 0.2s;
+}
 .mobile-link:first-child { border-top: 1px solid var(--border); }
-.mobile-link:hover, .mobile-link:active { color: var(--yellow-dark); }
+.mobile-link::after { content: '↗'; font-size: 0.9rem; color: var(--text3); transition: color 0.2s, transform 0.2s; }
+.mobile-link:active, .mobile-link:hover { color: var(--yellow-dark); padding-left: 6px; }
+.mobile-link:active::after, .mobile-link:hover::after { color: var(--yellow-dark); transform: translate(2px, -2px); }
+
+/* Duck + socials at bottom of drawer */
+.drawer-footer {
+  margin-top: auto; padding-top: 2rem;
+  display: flex; flex-direction: column; gap: 1.2rem;
+}
+.drawer-duck { font-size: 2rem; animation: floatImg 4s ease-in-out infinite; }
+.drawer-socials { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.drawer-social-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg2); text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+.drawer-social-icon:hover { border-color: var(--yellow); background: var(--yellow-pale); }
+.drawer-social-icon svg { width: 16px; height: 16px; display: block; }
+.drawer-copy { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); }
 
 @media (max-width: 768px) {
   .hamburger { display: flex; }
+  .menu-backdrop { display: block; pointer-events: none; }
+  .menu-backdrop.open { pointer-events: all; }
   .mobile-menu { display: flex; pointer-events: none; }
   .mobile-menu.open { pointer-events: all; }
 }
@@ -289,17 +369,43 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
   </div>
 </nav>
 
-<!-- Mobile menu overlay -->
+<!-- Backdrop -->
+<div class="menu-backdrop" id="menu-backdrop"></div>
+
+<!-- Drawer -->
 <div class="mobile-menu" id="mobile-menu">
-  <button class="mobile-close" id="mobile-close" aria-label="Close menu">✕</button>
-  <div class="mobile-duck">🦆</div>
+  <div class="drawer-header">
+    <span class="drawer-logo">🦆 BreDuck</span>
+    <button class="mobile-close" id="mobile-close" aria-label="Close menu">✕</button>
+  </div>
   <nav class="mobile-nav">
     <a href="#about" class="mobile-link">About</a>
     <a href="#categories" class="mobile-link">Categories</a>
     <a href="#socials" class="mobile-link">Socials</a>
     <a href="#videos" class="mobile-link">Videos</a>
-    <a href="https://www.youtube.com/@BreDuck" target="_blank" class="mobile-link">YouTube ↗</a>
+    <a href="https://www.youtube.com/@BreDuck" target="_blank" class="mobile-link">YouTube</a>
   </nav>
+  <div class="drawer-footer">
+    <div class="drawer-duck">🦆</div>
+    <div class="drawer-socials">
+      <a href="https://www.youtube.com/@BreDuck" target="_blank" class="drawer-social-icon" title="YouTube">
+        <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="#FF0000"/></svg>
+      </a>
+      <a href="https://www.instagram.com/breducko/" target="_blank" class="drawer-social-icon" title="Instagram">
+        <svg viewBox="0 0 24 24"><defs><linearGradient id="ig2" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#f09433"/><stop offset="50%" style="stop-color:#dc2743"/><stop offset="100%" style="stop-color:#bc1888"/></linearGradient></defs><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="url(#ig2)"/></svg>
+      </a>
+      <a href="https://www.facebook.com/clarklul" target="_blank" class="drawer-social-icon" title="Facebook">
+        <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/></svg>
+      </a>
+      <a href="https://x.com/BreDuck0" target="_blank" class="drawer-social-icon" title="Twitter">
+        <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor"/></svg>
+      </a>
+      <a href="mailto:clarkhilario.bread@gmail.com" class="drawer-social-icon" title="Email">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="#EA4335"/></svg>
+      </a>
+    </div>
+    <p class="drawer-copy">© 2025 BreDuck · Clark Hilario</p>
+  </div>
 </div>
 
 <section class="hero">
@@ -475,11 +581,23 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
 const hamburger = document.getElementById('hamburger');
 const mobileMenu = document.getElementById('mobile-menu');
 const mobileClose = document.getElementById('mobile-close');
+const menuBackdrop = document.getElementById('menu-backdrop');
 const mobileLinks = document.querySelectorAll('.mobile-link');
-function openMenu() { mobileMenu.classList.add('open'); hamburger.classList.add('open'); document.body.style.overflow = 'hidden'; }
-function closeMenu() { mobileMenu.classList.remove('open'); hamburger.classList.remove('open'); document.body.style.overflow = ''; }
+function openMenu() {
+  mobileMenu.classList.add('open');
+  menuBackdrop.classList.add('open');
+  hamburger.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMenu() {
+  mobileMenu.classList.remove('open');
+  menuBackdrop.classList.remove('open');
+  hamburger.classList.remove('open');
+  document.body.style.overflow = '';
+}
 hamburger.addEventListener('click', openMenu);
 mobileClose.addEventListener('click', closeMenu);
+menuBackdrop.addEventListener('click', closeMenu); // click outside = close
 mobileLinks.forEach(l => l.addEventListener('click', closeMenu));
 
 // DARK MODE
