@@ -124,7 +124,7 @@ section { padding: 6rem 3rem; }
 .carousel-track-outer {
   overflow: hidden;
   padding: 2rem 0 2.5rem;
-  cursor: ew-resize;
+  cursor: default;
   /* Fade edges */
   mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
@@ -928,45 +928,28 @@ document.getElementById('carousel-next').addEventListener('click', () => {
   if (carouselIndex < cards.length - 1) { carouselIndex++; updateCarousel(); }
 });
 
-// ── MOUSE-HOVER AUTO-SCROLL ──
-// When mouse hovers over carousel area, the position of the cursor
-// controls which card is active — left side = earlier cards, right = later
+// ── SCROLL WHEEL HIJACK ──
+// When mouse is over the carousel, scroll wheel moves cards instead of the page
 const carouselOuter = document.querySelector('.carousel-track-outer');
-let hoverRAF = null;
-let isHovering = false;
-let lastHoverIndex = -1;
+let scrollCooldown = false;
 
-carouselOuter.addEventListener('mouseenter', () => { isHovering = true; });
-carouselOuter.addEventListener('mouseleave', () => {
-  isHovering = false;
-  if (hoverRAF) { cancelAnimationFrame(hoverRAF); hoverRAF = null; }
-});
+carouselOuter.addEventListener('wheel', e => {
+  e.preventDefault(); // stop page from scrolling
+  if (scrollCooldown) return;
 
-carouselOuter.addEventListener('mousemove', e => {
-  if (!isHovering) return;
-  if (hoverRAF) cancelAnimationFrame(hoverRAF);
-  hoverRAF = requestAnimationFrame(() => {
-    const cards = document.querySelectorAll('.video-card');
-    const total = cards.length;
-    if (!total) return;
+  const cards = document.querySelectorAll('.video-card');
+  if (e.deltaY > 0 || e.deltaX > 0) {
+    // scroll down or right → next card
+    if (carouselIndex < cards.length - 1) { carouselIndex++; updateCarousel(); }
+  } else {
+    // scroll up or left → previous card
+    if (carouselIndex > 0) { carouselIndex--; updateCarousel(); }
+  }
 
-    // Map cursor X position across the full outer width to a card index
-    const rect = carouselOuter.getBoundingClientRect();
-    const relX = e.clientX - rect.left;
-    const ratio = Math.max(0, Math.min(1, relX / rect.width));
-
-    // Add slight dead zones at the edges so center stays stable
-    const deadzone = 0.08;
-    const adjustedRatio = Math.max(0, Math.min(1, (ratio - deadzone) / (1 - deadzone * 2)));
-    const newIndex = Math.round(adjustedRatio * (total - 1));
-
-    if (newIndex !== lastHoverIndex) {
-      lastHoverIndex = newIndex;
-      carouselIndex = newIndex;
-      updateCarousel();
-    }
-  });
-});
+  // small cooldown so one scroll tick = one card
+  scrollCooldown = true;
+  setTimeout(() => { scrollCooldown = false; }, 420);
+}, { passive: false }); // passive: false needed to allow preventDefault
 
 // ── TOUCH SWIPE — smooth drag feel ──
 let touchStartX = 0;
@@ -979,17 +962,14 @@ track.addEventListener('touchstart', e => {
   touchStartX = e.touches[0].clientX;
   touchStartIndex = carouselIndex;
   isDragging = true;
-  track.style.transition = 'none'; // disable animation during drag
+  track.style.transition = 'none';
 }, { passive: true });
 
 track.addEventListener('touchmove', e => {
   if (!isDragging) return;
   const cards = [...track.querySelectorAll('.video-card')];
   if (!cards.length) return;
-
   const diff = touchStartX - e.touches[0].clientX;
-  const cardW = cards[0].offsetWidth + 24; // card + gap
-  // Live drag: shift the track visually as finger moves
   const activeCard = cards[touchStartIndex];
   if (activeCard) {
     const outer = track.parentElement;
@@ -1003,17 +983,14 @@ track.addEventListener('touchmove', e => {
 track.addEventListener('touchend', e => {
   if (!isDragging) return;
   isDragging = false;
-  track.style.transition = ''; // re-enable animation
-
+  track.style.transition = '';
   const diff = touchStartX - e.changedTouches[0].clientX;
   const cards = document.querySelectorAll('.video-card');
-  const threshold = 50; // px to register a swipe
-
-  if (Math.abs(diff) > threshold) {
+  if (Math.abs(diff) > 50) {
     if (diff > 0 && carouselIndex < cards.length - 1) carouselIndex++;
     else if (diff < 0 && carouselIndex > 0) carouselIndex--;
   }
-  updateCarousel(); // snap to final position
+  updateCarousel();
 }, { passive: true });
 
 // ── KEYBOARD ARROWS ──
