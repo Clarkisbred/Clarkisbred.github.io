@@ -39,6 +39,9 @@ nav {
   border-bottom: 1px solid var(--border); transition: background 0.3s, border-color 0.3s;
 }
 .nav-logo { font-family: 'Fraunces', Georgia, serif; font-size: 1.4rem; letter-spacing: -0.01em; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+.nav-pfp { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 2px solid var(--yellow); flex-shrink: 0; box-shadow: 0 0 0 3px var(--yellow-pale); transition: box-shadow 0.3s; }
+.nav-pfp img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nav-logo:hover .nav-pfp { box-shadow: 0 0 0 4px var(--yellow-pale), 0 2px 8px rgba(0,0,0,0.12); }
 .nav-links { display: flex; gap: 2rem; list-style: none; }
 .nav-links a { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text3); text-decoration: none; transition: color 0.2s; }
 .nav-links a:hover { color: var(--text); }
@@ -234,8 +237,192 @@ section { padding: 6rem 3rem; }
 
 .loading-state { text-align: center; padding: 3rem; font-size: 0.75rem; color: var(--text3); }
 
+/* ── ANONYMOUS SECTION ── */
+.anon-section { background: var(--bg2); transition: background 0.3s; }
+.anon-wrap { max-width: 1200px; margin: 0 auto; }
+.anon-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2.5rem; }
+
+/* Input area - minimal line style */
+.anon-input-area {
+  max-width: 600px; margin: 0 auto 3rem;
+  display: flex; align-items: flex-end; gap: 1rem;
+  padding: 0 1rem;
+}
+.anon-input-wrap { flex: 1; position: relative; }
+.anon-input {
+  width: 100%; background: none; border: none;
+  border-bottom: 1.5px solid var(--border);
+  padding: 0.6rem 0; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem; color: var(--text); outline: none;
+  transition: border-color 0.3s;
+  caret-color: var(--yellow-dark);
+}
+.anon-input::placeholder { color: var(--text3); }
+.anon-input:focus { border-bottom-color: var(--yellow-dark); }
+.anon-send-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); padding: 0.4rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, transform 0.2s;
+  position: relative;
+}
+.anon-send-btn:hover { color: var(--yellow-dark); }
+.anon-send-btn svg { width: 22px; height: 22px; }
+
+/* Cooldown notice */
+.anon-cooldown {
+  text-align: center; font-size: 0.75rem; color: var(--text3);
+  margin-bottom: 2rem; min-height: 1.2em;
+}
+
+/* Paper plane animation */
+@keyframes planeFly {
+  0%   { transform: translate(0,0) rotate(0deg); opacity: 1; }
+  60%  { transform: translate(80px,-60px) rotate(-20deg); opacity: 1; }
+  100% { transform: translate(160px,-80px) rotate(-20deg); opacity: 0; }
+}
+@keyframes sentPopIn {
+  0%   { opacity: 0; transform: translateY(6px); }
+  20%  { opacity: 1; transform: translateY(0); }
+  80%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+.plane-flying { animation: planeFly 0.9s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
+.sent-toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  background: var(--yellow); color: #111;
+  font-family: 'Fraunces', serif; font-size: 0.95rem; font-style: italic;
+  padding: 0.7rem 1.8rem; border-radius: 2px;
+  pointer-events: none; z-index: 999;
+  animation: sentPopIn 2.2s ease forwards;
+}
+
+/* Anonymous card carousel — landscape */
+.anon-carousel-wrap { position: relative; }
+.anon-track-outer {
+  overflow: hidden;
+  padding: 1.5rem 0 2rem;
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+.anon-track {
+  display: flex;
+  gap: 1.5rem;
+  transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  align-items: center;
+  user-select: none;
+}
+
+/* Landscape card */
+.anon-card {
+  flex: 0 0 480px;
+  min-height: 200px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.8rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transform: scale(0.88);
+  opacity: 0.5;
+  transition: transform 0.45s cubic-bezier(0.77,0,0.18,1),
+              box-shadow 0.45s ease,
+              border-color 0.3s,
+              opacity 0.45s ease;
+}
+.anon-card.active {
+  transform: scale(1);
+  opacity: 1;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  border-color: var(--yellow);
+}
+.anon-card.adjacent {
+  transform: scale(0.93);
+  opacity: 0.7;
+}
+
+/* Top-left label */
+.anon-card-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--yellow-dark);
+  margin-bottom: 1rem;
+}
+
+/* Message body */
+.anon-card-msg {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text);
+  flex: 1;
+}
+
+/* Bottom bar with pfp */
+.anon-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.anon-pfp {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--yellow);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px var(--yellow-pale);
+  transition: box-shadow 0.3s;
+}
+.anon-pfp img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.anon-card.active .anon-pfp {
+  box-shadow: 0 0 0 4px var(--yellow-pale), 0 2px 8px rgba(0,0,0,0.1);
+}
+.anon-pfp-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text3);
+  font-weight: 500;
+}
+
+/* Anon dots */
+.anon-dots { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.2rem; }
+.anon-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border); border: none; cursor: pointer; padding: 0;
+  transition: background 0.3s, transform 0.3s, width 0.3s;
+}
+.anon-dot.active { background: var(--yellow-dark); width: 20px; border-radius: 3px; }
+
+/* Empty state */
+.anon-empty {
+  text-align: center; padding: 3rem 1rem;
+  font-family: 'Fraunces', serif; font-size: 1rem;
+  color: var(--text3); font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .anon-card { flex: 0 0 82vw; min-height: 180px; padding: 1.4rem 1.4rem; }
+  .anon-card-msg { font-size: 0.95rem; }
+  .anon-input-area { padding: 0; }
+}
+@media (max-width: 420px) {
+  .anon-card { flex: 0 0 86vw; }
+}
+
 footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; transition: border-color 0.3s; }
-.footer-logo { font-family: 'Fraunces', Georgia, serif; font-size: 1.2rem; color: var(--text); text-decoration: none; }
+.footer-logo { font-family: 'Fraunces', Georgia, serif; font-size: 1.2rem; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+.footer-pfp { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; border: 2px solid var(--yellow); flex-shrink: 0; }
+.footer-pfp img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .footer-copy { font-size: 0.78rem; color: var(--text3); letter-spacing: 0.04em; }
 .footer-links { display: flex; gap: 1.5rem; }
 .footer-links a { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text3); text-decoration: none; transition: color 0.2s; font-weight: 500; }
@@ -451,12 +638,13 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
 <body>
 
 <nav>
-  <a href="#" class="nav-logo">🦆 BreDuck</a>
+  <a href="#" class="nav-logo"><span class="nav-pfp"><img id="nav-pfp-img" alt="BreDuck" /></span> BreDuck</a>
   <ul class="nav-links" id="nav-links">
     <li><a href="#about" class="nav-link-item">About</a></li>
     <li><a href="#categories" class="nav-link-item">Categories</a></li>
     <li><a href="#socials" class="nav-link-item">Socials</a></li>
     <li><a href="#videos" class="nav-link-item">Videos</a></li>
+    <li><a href="#anonymous" class="nav-link-item">Anonymous</a></li>
     <li><a href="https://www.youtube.com/@BreDuck" target="_blank" class="nav-link-item">YouTube ↗</a></li>
   </ul>
   <div class="nav-right">
@@ -476,7 +664,7 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
 <!-- Drawer -->
 <div class="mobile-menu" id="mobile-menu">
   <div class="drawer-header">
-    <span class="drawer-logo">🦆 BreDuck</span>
+    <span class="drawer-logo" style="display:flex;align-items:center;gap:0.5rem;"><span class="nav-pfp" style="width:22px;height:22px;"><img id="drawer-pfp-img" alt="BreDuck" /></span> BreDuck</span>
     <button class="mobile-close" id="mobile-close" aria-label="Close menu">✕</button>
   </div>
   <nav class="mobile-nav">
@@ -484,6 +672,7 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
     <a href="#categories" class="mobile-link">Categories</a>
     <a href="#socials" class="mobile-link">Socials</a>
     <a href="#videos" class="mobile-link">Videos</a>
+    <a href="#anonymous" class="mobile-link">Anonymous</a>
     <a href="https://www.youtube.com/@BreDuck" target="_blank" class="mobile-link">YouTube</a>
   </nav>
   <div class="drawer-footer">
@@ -681,8 +870,42 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
   </div>
 </section>
 
+<section id="anonymous" class="anon-section">
+  <div class="anon-wrap">
+    <p class="section-label">Community</p>
+    <div class="anon-header">
+      <h2 class="section-title reveal">Say something<br><em style="font-style:italic;color:var(--yellow-dark)">anonymously.</em></h2>
+    </div>
+
+    <!-- Input -->
+    <div class="anon-input-area reveal">
+      <div class="anon-input-wrap">
+        <input type="text" class="anon-input" id="anon-input"
+          placeholder="leave a message for the pond…" maxlength="280" autocomplete="off" />
+      </div>
+      <button class="anon-send-btn" id="anon-send-btn" aria-label="Send anonymous message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+    <p class="anon-cooldown" id="anon-cooldown"></p>
+
+    <!-- Cards carousel -->
+    <div class="anon-carousel-wrap reveal">
+      <div class="anon-track-outer">
+        <div class="anon-track" id="anon-track">
+          <!-- filled by JS -->
+        </div>
+      </div>
+    </div>
+    <div class="anon-dots" id="anon-dots"></div>
+  </div>
+</section>
+
 <footer>
-  <a href="#" class="footer-logo">🦆 BreDuck</a>
+  <a href="#" class="footer-logo"><span class="footer-pfp"><img id="footer-pfp-img" alt="BreDuck" /></span> BreDuck</a>
   <p class="footer-copy">© 2025 BreDuck · Clark Hilario — All quacks reserved.</p>
   <div class="footer-links">
     <a href="https://www.youtube.com/@BreDuck" target="_blank">YouTube</a>
@@ -692,7 +915,27 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
 </footer>
 
 <script>
-// HAMBURGER MENU
+// ── COPY HERO PFP TO NAV / DRAWER / FOOTER ──
+(function() {
+  function applyPfp() {
+    const heroPfp = document.querySelector('.hero-profile img');
+    if (!heroPfp) return;
+    const src = heroPfp.src;
+    ['nav-pfp-img','drawer-pfp-img','footer-pfp-img'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.src = src;
+    });
+  }
+  // Run after hero image has loaded
+  const heroImg = document.querySelector('.hero-profile img');
+  if (heroImg && heroImg.complete) {
+    applyPfp();
+  } else if (heroImg) {
+    heroImg.addEventListener('load', applyPfp);
+    // also try immediately in case it's cached
+    setTimeout(applyPfp, 0);
+  }
+})();
 const hamburger = document.getElementById('hamburger');
 const mobileMenu = document.getElementById('mobile-menu');
 const mobileClose = document.getElementById('mobile-close');
@@ -754,6 +997,7 @@ function getCaption(index) {
 function makeVideoCard(videoId, title, date, link, index) {
   const thumbBase = `https://img.youtube.com/vi/${videoId}`;
   const caption = getCaption(index);
+  const displayTitle = title || 'Watch on YouTube ↗';
   const wrap = document.createElement('div');
   wrap.className = 'video-card';
   wrap.dataset.index = index;
@@ -761,7 +1005,7 @@ function makeVideoCard(videoId, title, date, link, index) {
     <span class="video-caption ${caption.cls}">${caption.text}</span>
     <a href="${link}" target="_blank" rel="noopener" class="video-card-inner">
       <div class="video-thumb">
-        <img src="${thumbBase}/hqdefault.jpg" alt="${title}" loading="lazy"
+        <img src="${thumbBase}/hqdefault.jpg" alt="${displayTitle}" loading="lazy"
              onerror="this.src='${thumbBase}/mqdefault.jpg'">
         <div class="play-overlay">
           <div class="play-btn">
@@ -770,7 +1014,7 @@ function makeVideoCard(videoId, title, date, link, index) {
         </div>
       </div>
       <div class="video-info">
-        <div class="video-title">${title}</div>
+        <div class="video-title">${displayTitle}</div>
         <div class="video-meta">${date}</div>
       </div>
     </a>`;
@@ -831,7 +1075,7 @@ async function getLatestVideoIdsFromPage() {
     const matches = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
     const seen = new Set(); const ids = [];
     for (const m of matches) {
-      if (!seen.has(m[1]) && ids.length < 8) { seen.add(m[1]); ids.push({ videoId: m[1], title: 'BreDuck Video', date: '', link: `https://www.youtube.com/watch?v=${m[1]}` }); }
+      if (!seen.has(m[1]) && ids.length < 8) { seen.add(m[1]); ids.push({ videoId: m[1], title: '', date: '', link: `https://www.youtube.com/watch?v=${m[1]}` }); }
     }
     return ids;
   } catch(e) { return []; }
@@ -1005,6 +1249,237 @@ document.addEventListener('keydown', e => {
 });
 
 loadVideos();
+
+// ── ANONYMOUS MESSAGES ──
+(function() {
+  // Pull profile image from hero for the pfp circle
+  const HERO_IMG_SRC = document.querySelector('.hero-profile img')?.src || '';
+  const FOUR_HOURS = 4 * 60 * 60 * 1000;
+  const STORAGE_KEY = 'breduck-anon-msgs';
+  const LAST_SEND_KEY = 'breduck-anon-last';
+
+  // Built-in seed messages so there's content right away
+  const SEED_MESSAGES = [
+    "ducks are the most underrated animal on the planet, change my mind 🦆",
+    "i found this channel at 3am and now i know too much about duck facts",
+    "whoever feeds the ducks stale bread — reform is possible",
+    "pond > ocean. fight me.",
+    "the quack echo in empty parking lots is genuinely haunting",
+    "if ducks had instagram they'd have more followers than me",
+    "watching duck videos is my entire personality now and i'm fine with it",
+  ];
+
+  function loadMessages() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [...SEED_MESSAGES];
+    } catch(e) { return [...SEED_MESSAGES]; }
+  }
+
+  function saveMessages(msgs) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(msgs)); } catch(e) {}
+  }
+
+  function getLastSend() {
+    try { return parseInt(localStorage.getItem(LAST_SEND_KEY) || '0', 10); } catch(e) { return 0; }
+  }
+
+  function setLastSend(ts) {
+    try { localStorage.setItem(LAST_SEND_KEY, String(ts)); } catch(e) {}
+  }
+
+  let anonMessages = loadMessages();
+  let anonIndex = 0;
+
+  function makeAnonCard(msg, num) {
+    const card = document.createElement('div');
+    card.className = 'anon-card';
+    card.innerHTML = `
+      <div class="anon-card-label">Breduck's Anonymous #${num}</div>
+      <div class="anon-card-msg">${escapeHtml(msg)}</div>
+      <div class="anon-card-footer">
+        <div class="anon-pfp">
+          ${HERO_IMG_SRC ? `<img src="${HERO_IMG_SRC}" alt="Breduck pfp" loading="lazy">` : '<div style="width:100%;height:100%;background:var(--yellow-pale);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🦆</div>'}
+        </div>
+        <span class="anon-pfp-label">Breduck's Pond</span>
+      </div>`;
+    return card;
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function buildAnonDots(count) {
+    const dotsEl = document.getElementById('anon-dots');
+    dotsEl.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'anon-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', `Go to message ${i+1}`);
+      dot.addEventListener('click', () => { anonIndex = i; updateAnon(); });
+      dotsEl.appendChild(dot);
+    }
+  }
+
+  function updateAnon(animate = true) {
+    const track = document.getElementById('anon-track');
+    const cards = [...track.querySelectorAll('.anon-card')];
+    const dots = [...document.querySelectorAll('.anon-dot')];
+    if (!cards.length) return;
+
+    cards.forEach((card, i) => {
+      card.classList.remove('active', 'adjacent');
+      if (i === anonIndex) card.classList.add('active');
+      else if (Math.abs(i - anonIndex) === 1) card.classList.add('adjacent');
+    });
+    dots.forEach((dot, i) => dot.classList.toggle('active', i === anonIndex));
+
+    const activeCard = cards[anonIndex];
+    if (activeCard) {
+      const outer = track.parentElement;
+      const outerW = outer.offsetWidth;
+      const cardLeft = activeCard.offsetLeft;
+      const cardW = activeCard.offsetWidth;
+      const scrollTarget = cardLeft - (outerW / 2) + (cardW / 2);
+      track.style.transition = animate
+        ? 'transform 0.5s cubic-bezier(0.77,0,0.18,1)'
+        : 'none';
+      track.style.transform = `translateX(${-scrollTarget}px)`;
+    }
+  }
+
+  function renderAnonCards() {
+    const track = document.getElementById('anon-track');
+    track.innerHTML = '';
+    if (!anonMessages.length) {
+      track.innerHTML = '<div class="anon-empty">No messages yet. Be the first to quack anonymously 🦆</div>';
+      document.getElementById('anon-dots').innerHTML = '';
+      return;
+    }
+    anonMessages.forEach((msg, i) => {
+      track.appendChild(makeAnonCard(msg, i + 1));
+    });
+    buildAnonDots(anonMessages.length);
+    anonIndex = Math.max(0, Math.min(anonIndex, anonMessages.length - 1));
+    setTimeout(() => updateAnon(false), 40);
+  }
+
+  // Cooldown UI
+  function updateCooldownUI() {
+    const last = getLastSend();
+    const remaining = FOUR_HOURS - (Date.now() - last);
+    const cooldownEl = document.getElementById('anon-cooldown');
+    const sendBtn = document.getElementById('anon-send-btn');
+    const input = document.getElementById('anon-input');
+    if (remaining > 0) {
+      const hrs = Math.floor(remaining / 3600000);
+      const mins = Math.ceil((remaining % 3600000) / 60000);
+      cooldownEl.textContent = `Next message in ${hrs > 0 ? hrs + 'h ' : ''}${mins}m`;
+      sendBtn.style.opacity = '0.35';
+      sendBtn.style.pointerEvents = 'none';
+      input.disabled = true;
+      input.placeholder = 'come back later to quack again…';
+      setTimeout(updateCooldownUI, 30000);
+    } else {
+      cooldownEl.textContent = '';
+      sendBtn.style.opacity = '';
+      sendBtn.style.pointerEvents = '';
+      input.disabled = false;
+      input.placeholder = 'leave a message for the pond…';
+    }
+  }
+
+  function showSentToast() {
+    const existing = document.querySelector('.sent-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'sent-toast';
+    toast.textContent = 'anonymous sent ✈';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2400);
+  }
+
+  function doSend() {
+    const last = getLastSend();
+    if (Date.now() - last < FOUR_HOURS) return;
+    const input = document.getElementById('anon-input');
+    const btn = document.getElementById('anon-send-btn');
+    const text = input.value.trim();
+    if (!text) return;
+
+    // Fly animation on the button SVG
+    const svgEl = btn.querySelector('svg');
+    svgEl.classList.remove('plane-flying');
+    void svgEl.offsetWidth; // reflow
+    svgEl.classList.add('plane-flying');
+    setTimeout(() => svgEl.classList.remove('plane-flying'), 950);
+
+    // Add message
+    anonMessages.push(text);
+    saveMessages(anonMessages);
+    setLastSend(Date.now());
+    input.value = '';
+    anonIndex = anonMessages.length - 1;
+    renderAnonCards();
+
+    showSentToast();
+    updateCooldownUI();
+  }
+
+  document.getElementById('anon-send-btn').addEventListener('click', doSend);
+  document.getElementById('anon-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); doSend(); }
+  });
+
+  // Scroll / swipe for anon carousel
+  const anonOuter = document.querySelector('.anon-track-outer');
+  let anonScrollCooldown = false;
+  anonOuter.addEventListener('wheel', e => {
+    e.preventDefault();
+    if (anonScrollCooldown) return;
+    const cards = document.querySelectorAll('.anon-card');
+    if (e.deltaY > 0 || e.deltaX > 0) {
+      if (anonIndex < cards.length - 1) { anonIndex++; updateAnon(); }
+    } else {
+      if (anonIndex > 0) { anonIndex--; updateAnon(); }
+    }
+    anonScrollCooldown = true;
+    setTimeout(() => { anonScrollCooldown = false; }, 420);
+  }, { passive: false });
+
+  let anonTouchStartX = 0;
+  const anonTrackEl = document.getElementById('anon-track');
+  anonTrackEl.addEventListener('touchstart', e => {
+    anonTouchStartX = e.touches[0].clientX;
+    anonTrackEl.style.transition = 'none';
+  }, { passive: true });
+  anonTrackEl.addEventListener('touchend', e => {
+    anonTrackEl.style.transition = '';
+    const diff = anonTouchStartX - e.changedTouches[0].clientX;
+    const cards = document.querySelectorAll('.anon-card');
+    if (Math.abs(diff) > 50) {
+      if (diff > 0 && anonIndex < cards.length - 1) anonIndex++;
+      else if (diff < 0 && anonIndex > 0) anonIndex--;
+    }
+    updateAnon();
+  }, { passive: true });
+
+  // Keyboard arrows when anon section visible
+  document.addEventListener('keydown', e => {
+    const section = document.getElementById('anonymous');
+    if (!section) return;
+    const rect = section.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      const cards = document.querySelectorAll('.anon-card');
+      if (e.key === 'ArrowRight' && anonIndex < cards.length - 1) { anonIndex++; updateAnon(); }
+      if (e.key === 'ArrowLeft' && anonIndex > 0) { anonIndex--; updateAnon(); }
+    }
+  });
+
+  renderAnonCards();
+  updateCooldownUI();
+})();
 </script>
 </body>
 </html>
