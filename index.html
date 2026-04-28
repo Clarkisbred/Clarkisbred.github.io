@@ -1250,15 +1250,18 @@ document.addEventListener('keydown', e => {
 
 loadVideos();
 
-// ── ANONYMOUS MESSAGES ──
+// ── ANONYMOUS MESSAGES — Supabase global backend ──
 (function() {
-  // Pull profile image from hero for the pfp circle
   const HERO_IMG_SRC = document.querySelector('.hero-profile img')?.src || '';
   const FOUR_HOURS = 4 * 60 * 60 * 1000;
-  const STORAGE_KEY = 'breduck-anon-msgs';
   const LAST_SEND_KEY = 'breduck-anon-last';
 
-  // Built-in seed messages so there's content right away
+  // ── SUPABASE CONFIG ── replace these two values after you create your project
+  const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  const TABLE = 'anon_messages';
+
+  // Seed messages shown while loading or if table is empty
   const SEED_MESSAGES = [
     "ducks are the most underrated animal on the planet, change my mind 🦆",
     "i found this channel at 3am and now i know too much about duck facts",
@@ -1269,15 +1272,38 @@ loadVideos();
     "watching duck videos is my entire personality now and i'm fine with it",
   ];
 
-  function loadMessages() {
+  // ── SUPABASE HELPERS ──
+  async function fetchMessages() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [...SEED_MESSAGES];
-    } catch(e) { return [...SEED_MESSAGES]; }
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/${TABLE}?select=id,message,created_at&order=created_at.asc&limit=100`,
+        { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` } }
+      );
+      if (!res.ok) throw new Error('fetch failed');
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) return SEED_MESSAGES.map(m => ({ message: m }));
+      return data;
+    } catch(e) {
+      return SEED_MESSAGES.map(m => ({ message: m }));
+    }
   }
 
-  function saveMessages(msgs) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(msgs)); } catch(e) {}
+  async function insertMessage(text) {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/${TABLE}`,
+      {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({ message: text })
+      }
+    );
+    if (!res.ok) throw new Error('insert failed');
+    return await res.json();
   }
 
   function getLastSend() {
@@ -1288,7 +1314,7 @@ loadVideos();
     try { localStorage.setItem(LAST_SEND_KEY, String(ts)); } catch(e) {}
   }
 
-  let anonMessages = loadMessages();
+  let anonMessages = [];
   let anonIndex = 0;
 
   function makeAnonCard(msg, num) {
@@ -1349,20 +1375,27 @@ loadVideos();
     }
   }
 
-  function renderAnonCards() {
+  function renderAnonCards(msgs) {
     const track = document.getElementById('anon-track');
     track.innerHTML = '';
-    if (!anonMessages.length) {
+    if (!msgs || !msgs.length) {
       track.innerHTML = '<div class="anon-empty">No messages yet. Be the first to quack anonymously 🦆</div>';
       document.getElementById('anon-dots').innerHTML = '';
       return;
     }
-    anonMessages.forEach((msg, i) => {
+    msgs.forEach((item, i) => {
+      const msg = typeof item === 'string' ? item : item.message;
       track.appendChild(makeAnonCard(msg, i + 1));
     });
-    buildAnonDots(anonMessages.length);
-    anonIndex = Math.max(0, Math.min(anonIndex, anonMessages.length - 1));
+    buildAnonDots(msgs.length);
+    anonIndex = Math.max(0, Math.min(anonIndex, msgs.length - 1));
     setTimeout(() => updateAnon(false), 40);
+  }
+
+  async function refreshMessages() {
+    const msgs = await fetchMessages();
+    anonMessages = msgs;
+    renderAnonCards(msgs);
   }
 
   // Cooldown UI
@@ -1400,7 +1433,7 @@ loadVideos();
     setTimeout(() => toast.remove(), 2400);
   }
 
-  function doSend() {
+  async function doSend() {
     const last = getLastSend();
     if (Date.now() - last < FOUR_HOURS) return;
     const input = document.getElementById('anon-input');
@@ -1408,23 +1441,29 @@ loadVideos();
     const text = input.value.trim();
     if (!text) return;
 
-    // Fly animation on the button SVG
+    // Plane fly animation
     const svgEl = btn.querySelector('svg');
     svgEl.classList.remove('plane-flying');
-    void svgEl.offsetWidth; // reflow
+    void svgEl.offsetWidth;
     svgEl.classList.add('plane-flying');
     setTimeout(() => svgEl.classList.remove('plane-flying'), 950);
 
-    // Add message
-    anonMessages.push(text);
-    saveMessages(anonMessages);
-    setLastSend(Date.now());
     input.value = '';
-    anonIndex = anonMessages.length - 1;
-    renderAnonCards();
-
-    showSentToast();
+    setLastSend(Date.now());
     updateCooldownUI();
+    showSentToast();
+
+    try {
+      await insertMessage(text);
+    } catch(e) {
+      // If Supabase isn't set up yet, fall back to local display only
+      anonMessages.push({ message: text });
+    }
+
+    // Refresh from server so new message appears globally
+    await refreshMessages();
+    anonIndex = anonMessages.length - 1;
+    updateAnon();
   }
 
   document.getElementById('anon-send-btn').addEventListener('click', doSend);
@@ -1477,8 +1516,12 @@ loadVideos();
     }
   });
 
-  renderAnonCards();
+  // Initial load from Supabase
+  refreshMessages();
   updateCooldownUI();
+
+  // Auto-refresh every 30s so new messages from others appear live
+  setInterval(refreshMessages, 30000);
 })();
 </script>
 </body>
