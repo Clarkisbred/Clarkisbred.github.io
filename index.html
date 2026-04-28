@@ -1250,18 +1250,19 @@ document.addEventListener('keydown', e => {
 
 loadVideos();
 
-// ── ANONYMOUS MESSAGES — JSONBin global backend ──
+// ── ANONYMOUS MESSAGES — Supabase global backend ──
 (function() {
   const HERO_IMG_SRC = document.querySelector('.hero-profile img')?.src || '';
   const FOUR_HOURS = 4 * 60 * 60 * 1000;
   const LAST_SEND_KEY = 'breduck-anon-last';
 
-  // ── JSONBIN CONFIG ──
-  const MASTER_KEY = '$2a$10$wR0zqcYTbzIqy2yizczbKeJ7SSQgdMMB0ZiOK.QhFuYTd.wJEPWSK';
-  const ACCESS_KEY = '$2a$10$RFlqSYg7hSAIm7CSTf0tXe2ym9ClK/KpXoTbGMZjXnxAvabnHNPGG';
-  let BIN_ID = localStorage.getItem('breduck-jsonbin-id') || null;
+  // ── PASTE YOUR SUPABASE KEYS HERE ──
+  const SUPABASE_URL  = 'https://shnbutvfutvfhakpbvbn.supabase.co';
+  const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNobmJ1dHZmdXR2Zmhha3BidmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNjIzMjEsImV4cCI6MjA5MjkzODMyMX0.QZYmpeeGWa8F3YddlxbcKkmYwGrRjdQ5iNau6nJpuVQ';
 
-  const SEED_MESSAGES = [
+  const TABLE = 'anon_messages';
+
+  const SEED = [
     "ducks are the most underrated animal on the planet, change my mind 🦆",
     "i found this channel at 3am and now i know too much about duck facts",
     "whoever feeds the ducks stale bread — reform is possible",
@@ -1271,92 +1272,67 @@ loadVideos();
     "watching duck videos is my entire personality now and i'm fine with it",
   ];
 
-  // ── JSONBIN HELPERS ──
+  const HEADERS = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_KEY,
+    'Content-Type': 'application/json'
+  };
 
-  // Create a shared bin once — stores the bin ID in localStorage so all devices reuse it
-  // But we need ONE canonical bin ID shared across all users.
-  // We hardcode it after first creation — see initBin()
-  const HARDCODED_BIN_ID = null; // will be filled after first run — see instructions
-
-  async function initBin() {
-    // If we already know the bin ID, skip creation
-    if (HARDCODED_BIN_ID) {
-      BIN_ID = HARDCODED_BIN_ID;
-      localStorage.setItem('breduck-jsonbin-id', BIN_ID);
-      return;
-    }
-    if (BIN_ID) return; // already created in a previous session on this device
-
-    // Create the bin for the first time
-    try {
-      const res = await fetch('https://api.jsonbin.io/v3/b', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': MASTER_KEY,
-          'X-Bin-Name': 'breduck-anon-messages',
-          'X-Bin-Private': 'false'
-        },
-        body: JSON.stringify({ messages: SEED_MESSAGES.map(m => ({ message: m, ts: Date.now() })) })
-      });
-      const data = await res.json();
-      BIN_ID = data.metadata?.id;
-      if (BIN_ID) {
-        localStorage.setItem('breduck-jsonbin-id', BIN_ID);
-        console.log('📦 JSONBin created! Bin ID:', BIN_ID, '— paste this into HARDCODED_BIN_ID in your HTML');
-      }
-    } catch(e) { console.error('JSONBin init failed:', e); }
-  }
-
+  // ── FETCH all messages ordered oldest→newest ──
   async function fetchMessages() {
+    // If keys are still placeholders, just return seed messages
+    if (SUPABASE_URL.includes('YOUR_') || SUPABASE_KEY.includes('YOUR_')) {
+      console.warn('⚠️ Supabase keys not set — showing seed messages');
+      return SEED.map(m => ({ message: m }));
+    }
     try {
-      await initBin();
-      if (!BIN_ID) return SEED_MESSAGES.map(m => ({ message: m }));
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-        headers: { 'X-Master-Key': MASTER_KEY, 'X-Access-Key': ACCESS_KEY }
-      });
+      const url = SUPABASE_URL + '/rest/v1/' + TABLE
+        + '?select=id,message,created_at&order=created_at.asc&limit=100';
+      const res = await fetch(url, { headers: HEADERS });
+      if (!res.ok) {
+        console.error('Supabase fetch error:', res.status, await res.text());
+        return SEED.map(m => ({ message: m }));
+      }
       const data = await res.json();
-      const msgs = data.record?.messages;
-      if (!Array.isArray(msgs) || msgs.length === 0) return SEED_MESSAGES.map(m => ({ message: m }));
-      return msgs;
+      console.log('✅ Supabase fetched:', data.length, 'messages');
+      if (!Array.isArray(data) || data.length === 0) return SEED.map(m => ({ message: m }));
+      return data;
     } catch(e) {
-      return SEED_MESSAGES.map(m => ({ message: m }));
+      console.error('fetchMessages error:', e);
+      return SEED.map(m => ({ message: m }));
     }
   }
 
+  // ── INSERT a new message ──
   async function insertMessage(text) {
-    await initBin();
-    if (!BIN_ID) throw new Error('No bin ID');
-    // Read current messages first
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-      headers: { 'X-Master-Key': MASTER_KEY, 'X-Access-Key': ACCESS_KEY }
+    const url = SUPABASE_URL + '/rest/v1/' + TABLE;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { ...HEADERS, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ message: text })
     });
-    const data = await res.json();
-    const existing = Array.isArray(data.record?.messages) ? data.record.messages : [];
-    const updated = [...existing, { message: text, ts: Date.now() }];
-    // Write back
-    const putRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': MASTER_KEY,
-        'X-Access-Key': ACCESS_KEY
-      },
-      body: JSON.stringify({ messages: updated })
-    });
-    if (!putRes.ok) throw new Error('JSONBin PUT failed');
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('Supabase insert error:', res.status, err);
+      throw new Error('insert failed: ' + err);
+    }
+    console.log('✅ Message saved to Supabase');
   }
 
   function getLastSend() {
     try { return parseInt(localStorage.getItem(LAST_SEND_KEY) || '0', 10); } catch(e) { return 0; }
   }
-
   function setLastSend(ts) {
-    try { localStorage.setItem(LAST_SEND_KEY, String(ts)); } catch(e) {}
+    try { localStorage.setItem(LAST_SEND_KEY, String(ts)); } catch(e) {} 
   }
 
   let anonMessages = [];
   let anonIndex = 0;
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
 
   function makeAnonCard(msg, num) {
     const card = document.createElement('div');
@@ -1366,15 +1342,13 @@ loadVideos();
       <div class="anon-card-msg">${escapeHtml(msg)}</div>
       <div class="anon-card-footer">
         <div class="anon-pfp">
-          ${HERO_IMG_SRC ? `<img src="${HERO_IMG_SRC}" alt="Breduck pfp" loading="lazy">` : '<div style="width:100%;height:100%;background:var(--yellow-pale);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🦆</div>'}
+          ${HERO_IMG_SRC
+            ? `<img src="${HERO_IMG_SRC}" alt="Breduck pfp" loading="lazy">`
+            : '<div style="width:100%;height:100%;background:var(--yellow-pale);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🦆</div>'}
         </div>
         <span class="anon-pfp-label">Breduck's Pond</span>
       </div>`;
     return card;
-  }
-
-  function escapeHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
   function buildAnonDots(count) {
@@ -1383,36 +1357,31 @@ loadVideos();
     for (let i = 0; i < count; i++) {
       const dot = document.createElement('button');
       dot.className = 'anon-dot' + (i === 0 ? ' active' : '');
-      dot.setAttribute('aria-label', `Go to message ${i+1}`);
+      dot.setAttribute('aria-label', 'Go to message ' + (i+1));
       dot.addEventListener('click', () => { anonIndex = i; updateAnon(); });
       dotsEl.appendChild(dot);
     }
   }
 
-  function updateAnon(animate = true) {
+  function updateAnon(animate) {
+    if (animate === undefined) animate = true;
     const track = document.getElementById('anon-track');
     const cards = [...track.querySelectorAll('.anon-card')];
-    const dots = [...document.querySelectorAll('.anon-dot')];
+    const dots  = [...document.querySelectorAll('.anon-dot')];
     if (!cards.length) return;
-
     cards.forEach((card, i) => {
       card.classList.remove('active', 'adjacent');
       if (i === anonIndex) card.classList.add('active');
       else if (Math.abs(i - anonIndex) === 1) card.classList.add('adjacent');
     });
     dots.forEach((dot, i) => dot.classList.toggle('active', i === anonIndex));
-
     const activeCard = cards[anonIndex];
     if (activeCard) {
       const outer = track.parentElement;
       const outerW = outer.offsetWidth;
-      const cardLeft = activeCard.offsetLeft;
-      const cardW = activeCard.offsetWidth;
-      const scrollTarget = cardLeft - (outerW / 2) + (cardW / 2);
-      track.style.transition = animate
-        ? 'transform 0.5s cubic-bezier(0.77,0,0.18,1)'
-        : 'none';
-      track.style.transform = `translateX(${-scrollTarget}px)`;
+      const scrollTarget = activeCard.offsetLeft - (outerW / 2) + (activeCard.offsetWidth / 2);
+      track.style.transition = animate ? 'transform 0.5s cubic-bezier(0.77,0,0.18,1)' : 'none';
+      track.style.transform = 'translateX(' + (-scrollTarget) + 'px)';
     }
   }
 
@@ -1439,17 +1408,20 @@ loadVideos();
     renderAnonCards(msgs);
   }
 
-  // Cooldown UI
+  // ── INIT — show seed cards immediately so nothing looks broken ──
+  renderAnonCards(SEED.map(m => ({ message: m })));
+  updateCooldownUI();
+
   function updateCooldownUI() {
     const last = getLastSend();
     const remaining = FOUR_HOURS - (Date.now() - last);
     const cooldownEl = document.getElementById('anon-cooldown');
-    const sendBtn = document.getElementById('anon-send-btn');
-    const input = document.getElementById('anon-input');
+    const sendBtn    = document.getElementById('anon-send-btn');
+    const input      = document.getElementById('anon-input');
     if (remaining > 0) {
-      const hrs = Math.floor(remaining / 3600000);
+      const hrs  = Math.floor(remaining / 3600000);
       const mins = Math.ceil((remaining % 3600000) / 60000);
-      cooldownEl.textContent = `Next message in ${hrs > 0 ? hrs + 'h ' : ''}${mins}m`;
+      cooldownEl.textContent = 'Next message in ' + (hrs > 0 ? hrs + 'h ' : '') + mins + 'm';
       sendBtn.style.opacity = '0.35';
       sendBtn.style.pointerEvents = 'none';
       input.disabled = true;
@@ -1475,14 +1447,13 @@ loadVideos();
   }
 
   async function doSend() {
-    const last = getLastSend();
-    if (Date.now() - last < FOUR_HOURS) return;
+    if (Date.now() - getLastSend() < FOUR_HOURS) return;
     const input = document.getElementById('anon-input');
-    const btn = document.getElementById('anon-send-btn');
-    const text = input.value.trim();
+    const btn   = document.getElementById('anon-send-btn');
+    const text  = input.value.trim();
     if (!text) return;
 
-    // Plane fly animation
+    // plane animation
     const svgEl = btn.querySelector('svg');
     svgEl.classList.remove('plane-flying');
     void svgEl.offsetWidth;
@@ -1497,11 +1468,11 @@ loadVideos();
     try {
       await insertMessage(text);
     } catch(e) {
-      // If Supabase isn't set up yet, fall back to local display only
+      console.error('Send failed:', e);
+      // show locally even if backend failed
       anonMessages.push({ message: text });
     }
 
-    // Refresh from server so new message appears globally
     await refreshMessages();
     anonIndex = anonMessages.length - 1;
     updateAnon();
@@ -1512,7 +1483,7 @@ loadVideos();
     if (e.key === 'Enter') { e.preventDefault(); doSend(); }
   });
 
-  // Scroll / swipe for anon carousel
+  // ── SCROLL WHEEL ──
   const anonOuter = document.querySelector('.anon-track-outer');
   let anonScrollCooldown = false;
   anonOuter.addEventListener('wheel', e => {
@@ -1528,13 +1499,33 @@ loadVideos();
     setTimeout(() => { anonScrollCooldown = false; }, 420);
   }, { passive: false });
 
+  // ── TOUCH SWIPE ──
   let anonTouchStartX = 0;
+  let anonTouchStartIndex = 0;
+  let anonDragging = false;
   const anonTrackEl = document.getElementById('anon-track');
   anonTrackEl.addEventListener('touchstart', e => {
     anonTouchStartX = e.touches[0].clientX;
+    anonTouchStartIndex = anonIndex;
+    anonDragging = true;
     anonTrackEl.style.transition = 'none';
   }, { passive: true });
+  anonTrackEl.addEventListener('touchmove', e => {
+    if (!anonDragging) return;
+    const cards = [...anonTrackEl.querySelectorAll('.anon-card')];
+    if (!cards.length) return;
+    const diff = anonTouchStartX - e.touches[0].clientX;
+    const activeCard = cards[anonTouchStartIndex];
+    if (activeCard) {
+      const outer = anonTrackEl.parentElement;
+      const outerW = outer.offsetWidth;
+      const baseOffset = activeCard.offsetLeft - (outerW/2) + (activeCard.offsetWidth/2);
+      anonTrackEl.style.transform = 'translateX(' + (-(baseOffset + diff)) + 'px)';
+    }
+  }, { passive: true });
   anonTrackEl.addEventListener('touchend', e => {
+    if (!anonDragging) return;
+    anonDragging = false;
     anonTrackEl.style.transition = '';
     const diff = anonTouchStartX - e.changedTouches[0].clientX;
     const cards = document.querySelectorAll('.anon-card');
@@ -1545,7 +1536,7 @@ loadVideos();
     updateAnon();
   }, { passive: true });
 
-  // Keyboard arrows when anon section visible
+  // ── KEYBOARD ──
   document.addEventListener('keydown', e => {
     const section = document.getElementById('anonymous');
     if (!section) return;
@@ -1553,15 +1544,14 @@ loadVideos();
     if (rect.top < window.innerHeight && rect.bottom > 0) {
       const cards = document.querySelectorAll('.anon-card');
       if (e.key === 'ArrowRight' && anonIndex < cards.length - 1) { anonIndex++; updateAnon(); }
-      if (e.key === 'ArrowLeft' && anonIndex > 0) { anonIndex--; updateAnon(); }
+      if (e.key === 'ArrowLeft'  && anonIndex > 0)                 { anonIndex--; updateAnon(); }
     }
   });
 
-  // Initial load from Supabase
+  // ── INIT ──
+  // (seed cards already rendered above — now fetch real data from Supabase)
   refreshMessages();
-  updateCooldownUI();
-
-  // Auto-refresh every 30s so new messages from others appear live
+  // Refresh every 30s so messages from others appear live
   setInterval(refreshMessages, 30000);
 })();
 </script>
