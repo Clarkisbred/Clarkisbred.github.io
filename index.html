@@ -1250,18 +1250,17 @@ document.addEventListener('keydown', e => {
 
 loadVideos();
 
-// ── ANONYMOUS MESSAGES — Supabase global backend ──
+// ── ANONYMOUS MESSAGES — JSONBin global backend ──
 (function() {
   const HERO_IMG_SRC = document.querySelector('.hero-profile img')?.src || '';
   const FOUR_HOURS = 4 * 60 * 60 * 1000;
   const LAST_SEND_KEY = 'breduck-anon-last';
 
-  // ── SUPABASE CONFIG ── replace these two values after you create your project
-  const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-  const TABLE = 'anon_messages';
+  // ── JSONBIN CONFIG ──
+  const MASTER_KEY = '$2a$10$wR0zqcYTbzIqy2yizczbKeJ7SSQgdMMB0ZiOK.QhFuYTd.wJEPWSK';
+  const ACCESS_KEY = '$2a$10$RFlqSYg7hSAIm7CSTf0tXe2ym9ClK/KpXoTbGMZjXnxAvabnHNPGG';
+  let BIN_ID = localStorage.getItem('breduck-jsonbin-id') || null;
 
-  // Seed messages shown while loading or if table is empty
   const SEED_MESSAGES = [
     "ducks are the most underrated animal on the planet, change my mind 🦆",
     "i found this channel at 3am and now i know too much about duck facts",
@@ -1272,38 +1271,80 @@ loadVideos();
     "watching duck videos is my entire personality now and i'm fine with it",
   ];
 
-  // ── SUPABASE HELPERS ──
+  // ── JSONBIN HELPERS ──
+
+  // Create a shared bin once — stores the bin ID in localStorage so all devices reuse it
+  // But we need ONE canonical bin ID shared across all users.
+  // We hardcode it after first creation — see initBin()
+  const HARDCODED_BIN_ID = null; // will be filled after first run — see instructions
+
+  async function initBin() {
+    // If we already know the bin ID, skip creation
+    if (HARDCODED_BIN_ID) {
+      BIN_ID = HARDCODED_BIN_ID;
+      localStorage.setItem('breduck-jsonbin-id', BIN_ID);
+      return;
+    }
+    if (BIN_ID) return; // already created in a previous session on this device
+
+    // Create the bin for the first time
+    try {
+      const res = await fetch('https://api.jsonbin.io/v3/b', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': MASTER_KEY,
+          'X-Bin-Name': 'breduck-anon-messages',
+          'X-Bin-Private': 'false'
+        },
+        body: JSON.stringify({ messages: SEED_MESSAGES.map(m => ({ message: m, ts: Date.now() })) })
+      });
+      const data = await res.json();
+      BIN_ID = data.metadata?.id;
+      if (BIN_ID) {
+        localStorage.setItem('breduck-jsonbin-id', BIN_ID);
+        console.log('📦 JSONBin created! Bin ID:', BIN_ID, '— paste this into HARDCODED_BIN_ID in your HTML');
+      }
+    } catch(e) { console.error('JSONBin init failed:', e); }
+  }
+
   async function fetchMessages() {
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/${TABLE}?select=id,message,created_at&order=created_at.asc&limit=100`,
-        { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` } }
-      );
-      if (!res.ok) throw new Error('fetch failed');
+      await initBin();
+      if (!BIN_ID) return SEED_MESSAGES.map(m => ({ message: m }));
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: { 'X-Master-Key': MASTER_KEY, 'X-Access-Key': ACCESS_KEY }
+      });
       const data = await res.json();
-      if (!Array.isArray(data) || data.length === 0) return SEED_MESSAGES.map(m => ({ message: m }));
-      return data;
+      const msgs = data.record?.messages;
+      if (!Array.isArray(msgs) || msgs.length === 0) return SEED_MESSAGES.map(m => ({ message: m }));
+      return msgs;
     } catch(e) {
       return SEED_MESSAGES.map(m => ({ message: m }));
     }
   }
 
   async function insertMessage(text) {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/${TABLE}`,
-      {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify({ message: text })
-      }
-    );
-    if (!res.ok) throw new Error('insert failed');
-    return await res.json();
+    await initBin();
+    if (!BIN_ID) throw new Error('No bin ID');
+    // Read current messages first
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': MASTER_KEY, 'X-Access-Key': ACCESS_KEY }
+    });
+    const data = await res.json();
+    const existing = Array.isArray(data.record?.messages) ? data.record.messages : [];
+    const updated = [...existing, { message: text, ts: Date.now() }];
+    // Write back
+    const putRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': MASTER_KEY,
+        'X-Access-Key': ACCESS_KEY
+      },
+      body: JSON.stringify({ messages: updated })
+    });
+    if (!putRes.ok) throw new Error('JSONBin PUT failed');
   }
 
   function getLastSend() {
