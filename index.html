@@ -1560,5 +1560,474 @@ loadVideos();
   setInterval(refreshMessages, 30000);
 })();
 </script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     BREDUCK ADMIN SYSTEM — SECRET: SHIFT + TYPE "breduck"
+     ═══════════════════════════════════════════════════════════════ -->
+<style>
+/* ── Admin Login Modal ── */
+.bd-admin-overlay {
+  position: fixed; inset: 0; z-index: 99990;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.bd-admin-overlay.open {
+  opacity: 1; pointer-events: all;
+}
+.bd-admin-modal {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #eee);
+  padding: 2.5rem 2.8rem;
+  width: 360px;
+  max-width: 90vw;
+  position: relative;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.25);
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bd-admin-overlay.open .bd-admin-modal {
+  transform: translateY(0) scale(1);
+}
+.bd-admin-eyebrow {
+  font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--yellow-dark, #C49B10); font-weight: 600; margin-bottom: 0.4rem;
+}
+.bd-admin-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.6rem; line-height: 1.1; margin-bottom: 1.6rem;
+  color: var(--text, #111);
+}
+.bd-admin-input {
+  width: 100%; border: 1px solid var(--border, #eee);
+  background: var(--bg2, #f3f3ef); color: var(--text, #111);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.92rem;
+  padding: 0.75rem 1rem; outline: none; letter-spacing: 0.04em;
+  transition: border-color 0.2s;
+  margin-bottom: 1rem;
+}
+.bd-admin-input:focus { border-color: var(--yellow, #F5C842); }
+.bd-admin-input.shake {
+  animation: bd-shake 0.35s ease;
+  border-color: #e55;
+}
+@keyframes bd-shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.bd-admin-btn {
+  width: 100%; background: var(--yellow, #F5C842); color: #111;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.72rem;
+  letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600;
+  border: none; padding: 0.85rem; cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.bd-admin-btn:hover { background: var(--yellow-dark, #C49B10); color: #fff; transform: translateY(-1px); }
+.bd-admin-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3, #888); font-size: 1.2rem; line-height: 1;
+  padding: 0.25rem 0.5rem; transition: color 0.2s;
+}
+.bd-admin-close:hover { color: var(--text, #111); }
+.bd-admin-err {
+  font-size: 0.72rem; color: #e55;
+  margin-top: -0.5rem; margin-bottom: 0.8rem;
+  min-height: 1em; letter-spacing: 0.03em;
+}
+
+/* ── Admin Panel ── */
+.bd-panel-overlay {
+  position: fixed; inset: 0; z-index: 99990;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.bd-panel-overlay.open {
+  opacity: 1; pointer-events: all;
+}
+.bd-panel {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #eee);
+  padding: 2.5rem 2.8rem;
+  width: 460px; max-width: 92vw;
+  position: relative;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.25);
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bd-panel-overlay.open .bd-panel {
+  transform: translateY(0) scale(1);
+}
+.bd-panel-eyebrow {
+  font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--yellow-dark, #C49B10); font-weight: 600; margin-bottom: 0.3rem;
+}
+.bd-panel-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.5rem; margin-bottom: 1.6rem; color: var(--text, #111);
+}
+.bd-panel-label {
+  font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3, #888); margin-bottom: 0.5rem; display: block; font-weight: 500;
+}
+.bd-panel-textarea {
+  width: 100%; min-height: 110px; resize: vertical;
+  border: 1px solid var(--border, #eee);
+  background: var(--bg2, #f3f3ef); color: var(--text, #111);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.92rem;
+  padding: 0.75rem 1rem; outline: none; line-height: 1.65;
+  transition: border-color 0.2s; margin-bottom: 1.2rem;
+}
+.bd-panel-textarea:focus { border-color: var(--yellow, #F5C842); }
+.bd-panel-send {
+  width: 100%; background: var(--yellow, #F5C842); color: #111;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.72rem;
+  letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600;
+  border: none; padding: 0.85rem; cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.bd-panel-send:hover { background: var(--yellow-dark, #C49B10); color: #fff; transform: translateY(-1px); }
+.bd-panel-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3, #888); font-size: 1.2rem;
+  padding: 0.25rem 0.5rem; transition: color 0.2s;
+}
+.bd-panel-close:hover { color: var(--text, #111); }
+.bd-panel-hint {
+  font-size: 0.7rem; color: var(--text3, #888);
+  margin-top: 0.8rem; text-align: center; letter-spacing: 0.03em;
+}
+
+/* ── Global Banner ── */
+.bd-banner-wrap {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.88);
+  z-index: 99999;
+  width: 480px; max-width: 92vw;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bd-banner-wrap.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: all;
+}
+/* Holy light glow behind the card */
+.bd-banner-halo {
+  position: absolute; inset: -40px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%,
+    rgba(245,200,66,0.65) 0%,
+    rgba(245,200,66,0.30) 40%,
+    transparent 70%);
+  animation: bd-halo-pulse 1.8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes bd-halo-pulse {
+  0%,100% { opacity: 0.8; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.08); }
+}
+/* Shimmer sweep across the card */
+.bd-banner-card {
+  position: relative; z-index: 1;
+  background: var(--surface, #fff);
+  border: 2px solid var(--yellow, #F5C842);
+  box-shadow:
+    0 0 0 4px rgba(245,200,66,0.18),
+    0 8px 40px rgba(245,200,66,0.28),
+    0 32px 80px rgba(0,0,0,0.18);
+  padding: 2rem 2.2rem 1.6rem;
+  overflow: hidden;
+}
+/* Shimmer */
+.bd-banner-card::before {
+  content: '';
+  position: absolute; top: 0; left: -120%;
+  width: 80%; height: 100%;
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%);
+  animation: bd-shimmer 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes bd-shimmer {
+  0%   { left: -120%; }
+  60%  { left: 140%; }
+  100% { left: 140%; }
+}
+/* Countdown bar */
+.bd-banner-bar {
+  position: absolute; bottom: 0; left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--yellow, #F5C842), var(--yellow-dark, #C49B10));
+  width: 100%;
+  transform-origin: left;
+  animation: bd-countdown 10s linear forwards;
+}
+@keyframes bd-countdown {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+.bd-banner-profile {
+  display: flex; align-items: center; gap: 0.9rem; margin-bottom: 1.2rem;
+}
+.bd-banner-pfp {
+  width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
+  border: 2.5px solid var(--yellow, #F5C842);
+  box-shadow: 0 0 0 4px rgba(245,200,66,0.22), 0 0 20px rgba(245,200,66,0.5);
+  flex-shrink: 0;
+}
+.bd-banner-pfp img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bd-banner-meta { flex: 1; }
+.bd-banner-author {
+  font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--yellow-dark, #C49B10); font-weight: 700; margin-bottom: 0.15rem;
+}
+.bd-banner-says {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 0.88rem; color: var(--text, #111); font-style: italic;
+}
+.bd-banner-msg {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.25rem; line-height: 1.55; color: var(--text, #111);
+  padding-bottom: 0.4rem;
+}
+.bd-banner-x {
+  position: absolute; top: 0.75rem; right: 0.85rem;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3, #888); font-size: 1rem; line-height: 1;
+  padding: 0.25rem 0.4rem; z-index: 2;
+  transition: color 0.2s, transform 0.2s;
+}
+.bd-banner-x:hover { color: var(--text, #111); transform: scale(1.2); }
+/* Dark overlay behind banner */
+.bd-banner-backdrop {
+  position: fixed; inset: 0; z-index: 99998;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.bd-banner-backdrop.show { opacity: 1; }
+</style>
+
+<!-- Login Modal -->
+<div class="bd-admin-overlay" id="bdLoginOverlay">
+  <div class="bd-admin-modal">
+    <button class="bd-admin-close" id="bdLoginClose" title="Close">✕</button>
+    <div class="bd-admin-eyebrow">Admin Access</div>
+    <div class="bd-admin-title">BreDuck<br>Control Panel</div>
+    <input class="bd-admin-input" id="bdAdminPw" type="password" placeholder="Enter password…" autocomplete="off" />
+    <div class="bd-admin-err" id="bdAdminErr"></div>
+    <button class="bd-admin-btn" id="bdAdminEnter">Enter →</button>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div class="bd-panel-overlay" id="bdPanelOverlay">
+  <div class="bd-panel">
+    <button class="bd-panel-close" id="bdPanelClose" title="Close">✕</button>
+    <div class="bd-panel-eyebrow">🦆 BreDuck Admin</div>
+    <div class="bd-panel-title">Global Announcement</div>
+    <label class="bd-panel-label" for="bdAnnounceText">Your message</label>
+    <textarea class="bd-panel-textarea" id="bdAnnounceText" placeholder="Type your message to the world…"></textarea>
+    <button class="bd-panel-send" id="bdAnnounceSend">📢 Broadcast Now</button>
+    <div class="bd-panel-hint">Banner appears globally · disappears in 10 seconds</div>
+  </div>
+</div>
+
+<!-- Global Banner (shown to all visitors) -->
+<div class="bd-banner-backdrop" id="bdBannerBackdrop"></div>
+<div class="bd-banner-wrap" id="bdBanner">
+  <div class="bd-banner-halo"></div>
+  <div class="bd-banner-card">
+    <div class="bd-banner-bar" id="bdBannerBar"></div>
+    <button class="bd-banner-x" id="bdBannerClose" title="Dismiss">✕</button>
+    <div class="bd-banner-profile">
+      <div class="bd-banner-pfp">
+        <img src="https://avatars.githubusercontent.com/u/breduck" alt="BreDuck"
+          onerror="this.src='https://ui-avatars.com/api/?name=B&background=F5C842&color=111&bold=true&size=52'" />
+      </div>
+      <div class="bd-banner-meta">
+        <div class="bd-banner-author">BreDuck</div>
+        <div class="bd-banner-says">BreDuck's Says…</div>
+      </div>
+    </div>
+    <div class="bd-banner-msg" id="bdBannerMsg"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  /* ── CONFIG ── */
+  const ADMIN_PW   = 'clarkson3?!';
+  const TRIGGER    = 'breduck';        // type while holding Shift
+  const BANNER_MS  = 10000;           // 10 seconds
+
+  /* ── STATE ── */
+  let keyBuffer = '';
+  let bufferTimer = null;
+  let bannerTimer = null;
+
+  /* ── ELEMENTS ── */
+  const loginOverlay  = document.getElementById('bdLoginOverlay');
+  const loginClose    = document.getElementById('bdLoginClose');
+  const pwInput       = document.getElementById('bdAdminPw');
+  const enterBtn      = document.getElementById('bdAdminEnter');
+  const errMsg        = document.getElementById('bdAdminErr');
+
+  const panelOverlay  = document.getElementById('bdPanelOverlay');
+  const panelClose    = document.getElementById('bdPanelClose');
+  const announceText  = document.getElementById('bdAnnounceText');
+  const announceBtn   = document.getElementById('bdAnnounceSend');
+
+  const bannerWrap    = document.getElementById('bdBanner');
+  const bannerBackdrop= document.getElementById('bdBannerBackdrop');
+  const bannerMsg     = document.getElementById('bdBannerMsg');
+  const bannerBar     = document.getElementById('bdBannerBar');
+
+  /* Profile picture — re-uses the same src as the site's own profile images */
+  const siteProfileImg = document.querySelector('.hero-profile img, .nav-pfp img');
+  if (siteProfileImg) {
+    document.querySelector('.bd-banner-pfp img').src = siteProfileImg.src;
+  }
+
+  /* ── KEYBOARD TRIGGER: SHIFT + ALT + type "breduck" ── */
+  document.addEventListener('keydown', (e) => {
+    // Only count key if BOTH Shift AND Alt are held and it's a letter
+    if (!e.shiftKey || !e.altKey || e.key.length !== 1 || !/[a-zA-Z]/.test(e.key)) {
+      if (!e.shiftKey || !e.altKey) {
+        keyBuffer = '';
+        clearTimeout(bufferTimer);
+      }
+      return;
+    }
+
+    // Ignore if user is typing in an input/textarea
+    const tag = document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    keyBuffer += e.key.toLowerCase();
+
+    // Keep only last N chars matching trigger length
+    if (keyBuffer.length > TRIGGER.length) {
+      keyBuffer = keyBuffer.slice(-TRIGGER.length);
+    }
+
+    clearTimeout(bufferTimer);
+    bufferTimer = setTimeout(() => { keyBuffer = ''; }, 2000);
+
+    if (keyBuffer === TRIGGER) {
+      keyBuffer = '';
+      openLogin();
+    }
+  });
+
+  /* ── LOGIN MODAL ── */
+  function openLogin() {
+    loginOverlay.classList.add('open');
+    setTimeout(() => pwInput.focus(), 200);
+    errMsg.textContent = '';
+    pwInput.value = '';
+  }
+
+  function closeLogin() {
+    loginOverlay.classList.remove('open');
+    pwInput.value = '';
+    errMsg.textContent = '';
+  }
+
+  function tryLogin() {
+    if (pwInput.value === ADMIN_PW) {
+      closeLogin();
+      openPanel();
+    } else {
+      errMsg.textContent = 'Incorrect password.';
+      pwInput.classList.remove('shake');
+      void pwInput.offsetWidth; // reflow
+      pwInput.classList.add('shake');
+      pwInput.value = '';
+      setTimeout(() => pwInput.classList.remove('shake'), 400);
+    }
+  }
+
+  loginClose.addEventListener('click', closeLogin);
+  loginOverlay.addEventListener('click', (e) => { if (e.target === loginOverlay) closeLogin(); });
+  enterBtn.addEventListener('click', tryLogin);
+  pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
+
+  /* ── ADMIN PANEL ── */
+  function openPanel() {
+    panelOverlay.classList.add('open');
+    setTimeout(() => announceText.focus(), 200);
+  }
+
+  function closePanel() {
+    panelOverlay.classList.remove('open');
+  }
+
+  panelClose.addEventListener('click', closePanel);
+  panelOverlay.addEventListener('click', (e) => { if (e.target === panelOverlay) closePanel(); });
+
+  /* ── BROADCAST ── */
+  announceBtn.addEventListener('click', () => {
+    const text = announceText.value.trim();
+    if (!text) return;
+    closePanel();
+    announceText.value = '';
+    showBanner(text);
+  });
+
+  function showBanner(text) {
+    // Clear any existing banner timer
+    clearTimeout(bannerTimer);
+
+    // Reset bar animation by replacing element
+    const oldBar = document.getElementById('bdBannerBar');
+    const newBar = oldBar.cloneNode();
+    oldBar.parentNode.replaceChild(newBar, oldBar);
+
+    bannerMsg.textContent = text;
+    bannerBackdrop.classList.add('show');
+    bannerWrap.classList.add('show');
+
+    bannerTimer = setTimeout(() => hideBanner(), BANNER_MS);
+  }
+
+  function hideBanner() {
+    bannerWrap.classList.remove('show');
+    bannerBackdrop.classList.remove('show');
+  }
+
+  // Click outside banner to dismiss early
+  bannerBackdrop.addEventListener('click', () => {
+    clearTimeout(bannerTimer);
+    hideBanner();
+  });
+
+  // X button to dismiss
+  document.getElementById('bdBannerClose').addEventListener('click', () => {
+    clearTimeout(bannerTimer);
+    hideBanner();
+  });
+
+  /* ── ESC to close any modal ── */
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (loginOverlay.classList.contains('open')) closeLogin();
+      if (panelOverlay.classList.contains('open')) closePanel();
+    }
+  });
+})();
+</script>
 </body>
 </html>
