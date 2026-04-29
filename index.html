@@ -2037,7 +2037,7 @@ loadVideos();
       if (latest.id !== lastSeenId) {
         // Also guard: only show if posted within last 15 seconds
         const age = Date.now() - new Date(latest.created_at).getTime();
-        if (age < 15000) {
+        if (age < 60000) {
           lastSeenId = latest.id;
           showBanner(latest.message);
         } else {
@@ -2049,7 +2049,7 @@ loadVideos();
 
   // Start polling
   pollAnnouncements();
-  setInterval(pollAnnouncements, 4000);
+  setInterval(pollAnnouncements, 2000);
 
   /* ── SHOW / HIDE BANNER ── */
   function showBanner(text) {
