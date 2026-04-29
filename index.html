@@ -633,6 +633,239 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
   .cat-card:hover .cat-emoji { transform: none; }
   .play-btn { opacity: 1; transform: scale(1); background: rgba(245,200,66,0.9); }
 }
+/* ── GLOBAL POPUP BANNER ── */
+@keyframes holyLight {
+  0%   { box-shadow: 0 0 0px 0px rgba(245,200,66,0); }
+  20%  { box-shadow: 0 0 60px 30px rgba(245,200,66,0.55), 0 0 120px 60px rgba(245,200,66,0.25); }
+  60%  { box-shadow: 0 0 40px 20px rgba(245,200,66,0.35), 0 0 80px 40px rgba(245,200,66,0.15); }
+  100% { box-shadow: 0 0 0px 0px rgba(245,200,66,0); }
+}
+@keyframes holyRays {
+  0%   { opacity: 0; transform: translateX(-50%) scaleY(0); }
+  15%  { opacity: 1; transform: translateX(-50%) scaleY(1); }
+  70%  { opacity: 0.6; transform: translateX(-50%) scaleY(1); }
+  100% { opacity: 0; transform: translateX(-50%) scaleY(1); }
+}
+@keyframes popupSlideDown {
+  from { opacity: 0; transform: translateY(-40px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes popupSlideUp {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-30px) scale(0.95); }
+}
+@keyframes pfpGlow {
+  0%,100% { box-shadow: 0 0 0 3px #F5C842, 0 0 16px 6px rgba(245,200,66,0.4); }
+  50%      { box-shadow: 0 0 0 5px #F5C842, 0 0 32px 12px rgba(245,200,66,0.7); }
+}
+@keyframes textFadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.global-popup-wrap {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  pointer-events: none;
+}
+.global-popup-wrap.show { display: block; pointer-events: all; }
+
+/* Holy rays beam from top */
+.holy-rays {
+  position: fixed; top: 0; left: 50%; width: 320px; height: 280px;
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: top center;
+  background: conic-gradient(from -15deg at 50% 0%,
+    transparent 0deg, rgba(245,200,66,0.18) 8deg, transparent 16deg,
+    transparent 24deg, rgba(245,200,66,0.12) 32deg, transparent 40deg,
+    transparent 48deg, rgba(245,200,66,0.2) 56deg, transparent 64deg,
+    transparent 72deg, rgba(245,200,66,0.1) 80deg, transparent 88deg,
+    transparent 96deg, rgba(245,200,66,0.15) 104deg, transparent 112deg,
+    transparent 120deg, rgba(245,200,66,0.1) 128deg, transparent 136deg
+  );
+  pointer-events: none; z-index: 9998; opacity: 0;
+}
+.holy-rays.animate { animation: holyRays 3s ease-out forwards; }
+
+/* Main popup card */
+.global-popup {
+  position: fixed; top: 1.5rem; left: 50%;
+  transform: translateX(-50%) translateY(-40px) scale(0.96);
+  width: min(420px, 92vw);
+  background: #111; color: #fff;
+  border-radius: 16px;
+  border: 1.5px solid rgba(245,200,66,0.5);
+  overflow: hidden; opacity: 0;
+  z-index: 9999;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.global-popup.show {
+  animation: popupSlideDown 0.55s cubic-bezier(0.34,1.4,0.64,1) forwards,
+             holyLight 3s 0.3s ease-out forwards;
+}
+.global-popup.hiding {
+  animation: popupSlideUp 0.4s ease-in forwards;
+}
+
+/* Top accent bar */
+.popup-accent-bar {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #F5C842, #EDBC30, #F5C842, transparent);
+  animation: none;
+}
+.global-popup.show .popup-accent-bar {
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+.popup-inner {
+  padding: 1.4rem 1.5rem 1.5rem;
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+  text-align: center; position: relative;
+}
+
+/* Profile */
+.popup-pfp {
+  width: 64px; height: 64px; border-radius: 50%; overflow: hidden;
+  border: 2.5px solid #F5C842;
+  animation: pfpGlow 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.popup-pfp img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Header */
+.popup-header {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1rem; color: #F5C842; letter-spacing: 0.04em;
+  font-style: italic;
+  animation: textFadeUp 0.5s 0.3s both;
+}
+
+/* Message text */
+.popup-text {
+  font-size: 0.95rem; line-height: 1.6; color: #f0f0ec;
+  font-weight: 400; max-width: 340px;
+  animation: textFadeUp 0.5s 0.45s both;
+}
+
+/* Timer bar */
+.popup-timer-bar {
+  width: 100%; height: 2px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 1px; overflow: hidden;
+  margin-top: 0.3rem;
+}
+.popup-timer-fill {
+  height: 100%; width: 100%;
+  background: linear-gradient(90deg, #F5C842, #EDBC30);
+  border-radius: 1px;
+  transform-origin: left;
+  transition: transform linear;
+}
+
+/* Close btn */
+.global-popup-close {
+  position: absolute; top: 0.8rem; right: 0.8rem;
+  background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+  width: 26px; height: 26px; cursor: pointer; font-size: 0.75rem; color: #aaa;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.global-popup-close:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+/* ── ADMIN LOGIN OVERLAY ── */
+.admin-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center;
+}
+.admin-overlay.open { display: flex; }
+.admin-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  width: min(480px, 92vw); border-radius: 6px;
+  overflow: hidden;
+  animation: adminSlideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes adminSlideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.admin-header {
+  background: var(--cat-bg); padding: 1.2rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--cat-border);
+}
+.admin-header-title {
+  font-family: 'Fraunces', serif; font-size: 1.1rem; color: var(--cat-text);
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.admin-close-btn {
+  background: none; border: 1px solid #444; width: 28px; height: 28px;
+  border-radius: 50%; cursor: pointer; color: #aaa; font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.admin-close-btn:hover { background: #333; color: #fff; border-color: #555; }
+.admin-body { padding: 1.8rem 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; }
+
+/* Login state */
+.admin-login-section { display: flex; flex-direction: column; gap: 1rem; }
+.admin-field-label { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); font-weight: 500; margin-bottom: 0.3rem; display: block; }
+.admin-input {
+  width: 100%; background: none; border: none; border-bottom: 1.5px solid var(--border);
+  padding: 0.6rem 0; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem; color: var(--text); outline: none; transition: border-color 0.2s;
+}
+.admin-input:focus { border-color: var(--yellow-dark); }
+.admin-login-btn {
+  background: var(--yellow); color: #111; border: none; padding: 0.85rem 1.5rem;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.78rem;
+  font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; transition: background 0.2s, transform 0.15s; align-self: flex-start;
+}
+.admin-login-btn:hover { background: var(--yellow-dark); color: #fff; transform: translateY(-1px); }
+.admin-login-error { font-size: 0.78rem; color: #e74c3c; display: none; }
+.admin-login-error.show { display: block; }
+
+/* Broadcast state */
+.admin-broadcast-section { display: none; flex-direction: column; gap: 1.2rem; }
+.admin-broadcast-section.show { display: flex; }
+.admin-textarea {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.9rem 1rem; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.9rem; color: var(--text); outline: none; resize: vertical;
+  min-height: 100px; transition: border-color 0.2s; line-height: 1.6;
+}
+.admin-textarea:focus { border-color: var(--yellow-dark); }
+.admin-emoji-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.admin-emoji-btn {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 4px;
+  padding: 0.3rem 0.6rem; font-size: 1rem; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.admin-emoji-btn:hover { background: var(--yellow-pale); border-color: var(--yellow); }
+.admin-send-row { display: flex; gap: 0.8rem; align-items: center; }
+.admin-broadcast-btn {
+  background: #111; color: var(--yellow); border: none; padding: 0.85rem 1.5rem;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.78rem;
+  font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; transition: background 0.2s, transform 0.15s; display: flex; gap: 0.5rem; align-items: center;
+}
+.admin-broadcast-btn:hover { background: #222; transform: translateY(-1px); }
+.admin-clear-btn {
+  background: none; border: 1px solid var(--border); padding: 0.85rem 1.2rem;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.78rem;
+  font-weight: 500; color: var(--text3); cursor: pointer; transition: all 0.2s;
+}
+.admin-clear-btn:hover { border-color: #e74c3c; color: #e74c3c; }
+.admin-status { font-size: 0.75rem; color: var(--text3); }
+.admin-status.ok { color: #27ae60; }
+.admin-status.err { color: #e74c3c; }
+.admin-logout { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; transition: color 0.2s; }
+.admin-logout:hover { color: var(--text); }
 </style>
 </head>
 <body>
@@ -835,12 +1068,7 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
       <div class="fact-card"><div class="fact-number">~125</div><div class="fact-label">Species of ducks exist worldwide across wetlands, oceans, and forests.</div></div>
       <div class="fact-card"><div class="fact-number">9 mph</div><div class="fact-label">Average swimming speed of a mallard — deceptively fast for something that waddly.</div></div>
       <div class="fact-card"><div class="fact-number">10 yr</div><div class="fact-label">Lifespan of a wild duck — domestic ducks can live up to 20 years with care.</div></div>
-      <div class="fact-card"><div class="fact-number">360°</div><div class="fact-label">Field of vision for most ducks, thanks to eyes on either side of their heads.</div></div>
-      <div class="fact-card"><div class="fact-number">~75 g</div><div class="fact-label">Protein-rich invertebrates a female wood duck must eat to form just one egg.</div></div>
-      <div class="fact-card"><div class="fact-number">~1 eye</div><div class="fact-label">How ducks often sleep — keeping half their brain alert for predators.</div></div>
-      <div class="fact-card"><div class="fact-number">~60 mph</div><div class="fact-label">Top recorded burst swimming speed for a motivated mallard on the surface.</div></div>
-      <div class="fact-card"><div class="fact-number">~80</div><div class="fact-label">Different duck calls and vocalizations recorded in mallards alone.</div></div>
-      <div class="fact-card"><div class="fact-number">~2 oz</div><div class="fact-label">Weight of the smallest duck species, the cotton teal or pygmy goose.</div></div>
+      <div class="fact-card"><div class="fact-number">~75g</div><div class="fact-label">Protein-rich invertebrates a female wood duck must eat to form just one egg.</div></div>
     </div>
   </div>
 </section>
@@ -1558,6 +1786,334 @@ loadVideos();
   refreshMessages();
   // Refresh every 30s so messages from others appear live
   setInterval(refreshMessages, 30000);
+})();
+<!-- Holy rays -->
+<div class="holy-rays" id="holy-rays"></div>
+
+<!-- Global popup card -->
+<div class="global-popup-wrap" id="global-popup-wrap">
+  <div class="global-popup" id="global-popup">
+    <div class="popup-accent-bar"></div>
+    <div class="popup-inner">
+      <button class="global-popup-close" id="global-popup-close" aria-label="Close">✕</button>
+      <div class="popup-pfp" id="popup-pfp"></div>
+      <div class="popup-header">BreDuck Says…</div>
+      <div class="popup-text" id="global-popup-msg"></div>
+      <div class="popup-timer-bar"><div class="popup-timer-fill" id="popup-timer-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin overlay -->
+<div class="admin-overlay" id="admin-overlay">
+  <div class="admin-panel">
+    <div class="admin-header">
+      <div class="admin-header-title">🦆 BreDuck Admin</div>
+      <button class="admin-close-btn" id="admin-close-btn">✕</button>
+    </div>
+    <div class="admin-body">
+
+      <!-- Login -->
+      <div class="admin-login-section" id="admin-login-section">
+        <div>
+          <span class="admin-field-label">Admin Password</span>
+          <input type="password" class="admin-input" id="admin-password-input" placeholder="enter password…" autocomplete="off">
+        </div>
+        <div class="admin-login-error" id="admin-login-error">Wrong password. Try again.</div>
+        <button class="admin-login-btn" id="admin-login-btn">Unlock Panel</button>
+      </div>
+
+      <!-- Broadcast -->
+      <div class="admin-broadcast-section" id="admin-broadcast-section">
+        <div>
+          <span class="admin-field-label">Broadcast Message</span>
+          <textarea class="admin-textarea" id="admin-msg-input" placeholder="Type a message to show everyone visiting your site…" maxlength="200"></textarea>
+        </div>
+        <div>
+          <span class="admin-field-label" style="margin-bottom:0.5rem">Quick emojis</span>
+          <div class="admin-emoji-row" id="admin-emoji-row">
+            <button class="admin-emoji-btn">🦆</button>
+            <button class="admin-emoji-btn">👋</button>
+            <button class="admin-emoji-btn">🎉</button>
+            <button class="admin-emoji-btn">🔥</button>
+            <button class="admin-emoji-btn">💛</button>
+            <button class="admin-emoji-btn">📢</button>
+            <button class="admin-emoji-btn">🌊</button>
+            <button class="admin-emoji-btn">✨</button>
+          </div>
+        </div>
+        <div class="admin-send-row">
+          <button class="admin-broadcast-btn" id="admin-broadcast-btn">
+            <span>📢</span> Broadcast
+          </button>
+          <button class="admin-clear-btn" id="admin-clear-btn">Clear Banner</button>
+          <span class="admin-status" id="admin-status"></span>
+        </div>
+        <button class="admin-logout" id="admin-logout-btn">← Log out of admin</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</script>
+<script>
+// ── ADMIN PANEL ──
+(function() {
+  const ADMIN_PASSWORD = 'clarkson3?!';
+
+  const SUPABASE_URL = 'https://shnbutvfutvfhakpbvbn.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNobmJ1dHZmdXR2Zmhha3BidmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNjIzMjEsImV4cCI6MjA5MjkzODMyMX0.QZYmpeeGWa8F3YddlxbcKkmYwGrRjdQ5iNau6nJpuVQ';
+  const HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
+  const POPUP_TABLE = 'admin_popup';
+  const POPUP_DURATION = 10000; // 10 seconds
+
+  // ── Secret trigger: hold SHIFT and type "breduck" ──
+  let keyBuffer = '';
+  let shiftHeld = false;
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Shift') { shiftHeld = true; return; }
+    if (shiftHeld) {
+      keyBuffer += e.key.toLowerCase();
+      if (keyBuffer.length > 10) keyBuffer = keyBuffer.slice(-10);
+      if (keyBuffer.includes('breduck')) {
+        keyBuffer = '';
+        openAdminOverlay();
+      }
+    } else {
+      keyBuffer = '';
+    }
+  });
+  document.addEventListener('keyup', e => { if (e.key === 'Shift') { shiftHeld = false; keyBuffer = ''; } });
+
+  // Elements
+  const overlay          = document.getElementById('admin-overlay');
+  const closeBtn         = document.getElementById('admin-close-btn');
+  const loginSection     = document.getElementById('admin-login-section');
+  const broadcastSection = document.getElementById('admin-broadcast-section');
+  const passwordInput    = document.getElementById('admin-password-input');
+  const loginBtn         = document.getElementById('admin-login-btn');
+  const loginError       = document.getElementById('admin-login-error');
+  const msgInput         = document.getElementById('admin-msg-input');
+  const broadcastBtn     = document.getElementById('admin-broadcast-btn');
+  const clearBtn         = document.getElementById('admin-clear-btn');
+  const statusEl         = document.getElementById('admin-status');
+  const logoutBtn        = document.getElementById('admin-logout-btn');
+  const emojiRow         = document.getElementById('admin-emoji-row');
+
+  let isLoggedIn = sessionStorage.getItem('breduck-admin') === 'true';
+
+  function openAdminOverlay() {
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (isLoggedIn) showBroadcast(); else showLogin();
+    setTimeout(() => passwordInput.focus(), 120);
+  }
+  function closeAdminOverlay() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function showLogin() {
+    loginSection.style.display = 'flex';
+    broadcastSection.classList.remove('show');
+    passwordInput.value = '';
+    loginError.classList.remove('show');
+  }
+  function showBroadcast() {
+    loginSection.style.display = 'none';
+    broadcastSection.classList.add('show');
+  }
+
+  closeBtn.addEventListener('click', closeAdminOverlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeAdminOverlay(); });
+
+  function tryLogin() {
+    if (passwordInput.value === ADMIN_PASSWORD) {
+      isLoggedIn = true;
+      sessionStorage.setItem('breduck-admin', 'true');
+      loginError.classList.remove('show');
+      showBroadcast();
+    } else {
+      loginError.classList.add('show');
+      passwordInput.value = '';
+      passwordInput.focus();
+      passwordInput.style.borderColor = '#e74c3c';
+      setTimeout(() => { passwordInput.style.borderColor = ''; }, 900);
+    }
+  }
+  loginBtn.addEventListener('click', tryLogin);
+  passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+  logoutBtn.addEventListener('click', () => {
+    isLoggedIn = false;
+    sessionStorage.removeItem('breduck-admin');
+    showLogin();
+  });
+
+  emojiRow.querySelectorAll('.admin-emoji-btn').forEach(btn => {
+    btn.addEventListener('click', () => { msgInput.value += btn.textContent; msgInput.focus(); });
+  });
+
+  // ── SUPABASE POPUP ──
+  async function setPopupInDB(msg) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${POPUP_TABLE}`, {
+      method: 'POST',
+      headers: { ...HEADERS, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify({ id: 1, message: msg, active: !!msg, updated_at: new Date().toISOString() })
+    });
+    if (!res.ok) throw new Error(await res.text());
+  }
+
+  broadcastBtn.addEventListener('click', async () => {
+    const msg = msgInput.value.trim();
+    if (!msg) { statusEl.textContent = 'Message is empty!'; statusEl.className = 'admin-status err'; return; }
+    broadcastBtn.style.opacity = '0.6'; broadcastBtn.style.pointerEvents = 'none';
+    statusEl.textContent = 'Sending…'; statusEl.className = 'admin-status';
+    try {
+      await setPopupInDB(msg);
+      statusEl.textContent = '✅ Broadcast sent!'; statusEl.className = 'admin-status ok';
+      showGlobalPopup(msg);
+    } catch(e) {
+      statusEl.textContent = '❌ ' + e.message; statusEl.className = 'admin-status err';
+    }
+    broadcastBtn.style.opacity = ''; broadcastBtn.style.pointerEvents = '';
+  });
+
+  clearBtn.addEventListener('click', async () => {
+    statusEl.textContent = 'Clearing…'; statusEl.className = 'admin-status';
+    try {
+      await setPopupInDB('');
+      hideGlobalPopup();
+      statusEl.textContent = '✅ Banner cleared!'; statusEl.className = 'admin-status ok';
+    } catch(e) {
+      statusEl.textContent = '❌ ' + e.message; statusEl.className = 'admin-status err';
+    }
+  });
+
+  // ── GLOBAL POPUP LOGIC ──
+  const popupWrap  = document.getElementById('global-popup-wrap');
+  const popupEl    = document.getElementById('global-popup');
+  const popupMsg   = document.getElementById('global-popup-msg');
+  const popupClose = document.getElementById('global-popup-close');
+  const popupPfp   = document.getElementById('popup-pfp');
+  const timerFill  = document.getElementById('popup-timer-fill');
+  const holyRays   = document.getElementById('holy-rays');
+
+  // Set profile pic from hero image
+  const heroPfp = document.querySelector('.hero-profile img');
+  if (heroPfp) {
+    popupPfp.innerHTML = `<img src="${heroPfp.src}" alt="BreDuck">`;
+  } else {
+    popupPfp.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1a1a1a;font-size:2rem;">🦆</div>';
+  }
+
+  // ── SOUNDS (Web Audio API — no external files needed) ──
+  function playQuack() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(280, ctx.currentTime + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.18);
+      osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.32);
+      gain.gain.setValueAtTime(0.22, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch(e) {}
+  }
+
+  function playHolyChime() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        const t = ctx.currentTime + i * 0.13;
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.18, t + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 1.4);
+        osc.start(t); osc.stop(t + 1.4);
+      });
+    } catch(e) {}
+  }
+
+  let popupTimer = null;
+
+  function showGlobalPopup(msg) {
+    clearTimeout(popupTimer);
+    popupMsg.textContent = msg;
+
+    // Reset states
+    popupEl.classList.remove('show', 'hiding');
+    popupWrap.classList.remove('show');
+    holyRays.classList.remove('animate');
+    timerFill.style.transition = 'none';
+    timerFill.style.transform = 'scaleX(1)';
+
+    void popupEl.offsetWidth; // reflow
+
+    // Show
+    popupWrap.classList.add('show');
+    popupEl.classList.add('show');
+    holyRays.classList.add('animate');
+
+    // Play sounds
+    playQuack();
+    setTimeout(playHolyChime, 200);
+
+    // Start countdown bar
+    requestAnimationFrame(() => {
+      timerFill.style.transition = `transform ${POPUP_DURATION}ms linear`;
+      timerFill.style.transform = 'scaleX(0)';
+    });
+
+    // Auto-dismiss after 10s
+    popupTimer = setTimeout(() => hideGlobalPopup(), POPUP_DURATION);
+  }
+
+  function hideGlobalPopup() {
+    clearTimeout(popupTimer);
+    popupEl.classList.remove('show');
+    popupEl.classList.add('hiding');
+    holyRays.classList.remove('animate');
+    setTimeout(() => {
+      popupWrap.classList.remove('show');
+      popupEl.classList.remove('hiding');
+    }, 420);
+  }
+
+  popupClose.addEventListener('click', hideGlobalPopup);
+
+  // ── POLL SUPABASE every 15s ──
+  let lastSeenMsg = '';
+  async function checkPopup() {
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/${POPUP_TABLE}?id=eq.1&select=message,active,updated_at`,
+        { headers: HEADERS }
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      const row = data[0];
+      if (row?.active && row?.message && row.message !== lastSeenMsg) {
+        lastSeenMsg = row.message;
+        showGlobalPopup(row.message);
+      } else if (!row?.active) {
+        lastSeenMsg = '';
+        hideGlobalPopup();
+      }
+    } catch(e) {}
+  }
+  checkPopup();
+  setInterval(checkPopup, 15000);
 })();
 </script>
 </body>
