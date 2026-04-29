@@ -1978,20 +1978,84 @@ loadVideos();
   panelClose.addEventListener('click', closePanel);
   panelOverlay.addEventListener('click', (e) => { if (e.target === panelOverlay) closePanel(); });
 
+  /* ── SUPABASE CONFIG (reuse site credentials) ── */
+  const SB_URL  = 'https://shnbutvfutvfhakpbvbn.supabase.co';
+  const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNobmJ1dHZmdXR2Zmhha3BidmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNjIzMjEsImV4cCI6MjA5MjkzODMyMX0.QZYmpeeGWa8F3YddlxbcKkmYwGrRjdQ5iNau6nJpuVQ';
+  const BD_TABLE = 'bd_announcements';
+  const SB_HEADERS = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+
   /* ── BROADCAST ── */
-  announceBtn.addEventListener('click', () => {
+  announceBtn.addEventListener('click', async () => {
     const text = announceText.value.trim();
     if (!text) return;
-    closePanel();
-    announceText.value = '';
-    showBanner(text);
+    announceBtn.textContent = '📡 Sending…';
+    announceBtn.disabled = true;
+
+    try {
+      const res = await fetch(`${SB_URL}/rest/v1/${BD_TABLE}`, {
+        method: 'POST',
+        headers: { ...SB_HEADERS, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ message: text, created_at: new Date().toISOString() })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      closePanel();
+      announceText.value = '';
+      showBanner(text); // also show immediately to admin
+    } catch (err) {
+      console.error('Broadcast failed:', err);
+      alert('❌ Could not broadcast. Check the Supabase table exists.\n\n' + err.message);
+    } finally {
+      announceBtn.textContent = '📢 Broadcast Now';
+      announceBtn.disabled = false;
+    }
   });
 
+  /* ── POLLING — all visitors check every 4 seconds ── */
+  let lastSeenId = null;
+  let pollInitialized = false;
+
+  async function pollAnnouncements() {
+    try {
+      const res = await fetch(
+        `${SB_URL}/rest/v1/${BD_TABLE}?select=id,message,created_at&order=created_at.desc&limit=1`,
+        { headers: SB_HEADERS }
+      );
+      if (!res.ok) return;
+      const rows = await res.json();
+      if (!rows.length) { pollInitialized = true; return; }
+
+      const latest = rows[0];
+
+      // On first load just record the latest ID so we don't replay old messages
+      if (!pollInitialized) {
+        lastSeenId = latest.id;
+        pollInitialized = true;
+        return;
+      }
+
+      // Only show if it's newer than what we've seen
+      if (latest.id !== lastSeenId) {
+        // Also guard: only show if posted within last 15 seconds
+        const age = Date.now() - new Date(latest.created_at).getTime();
+        if (age < 15000) {
+          lastSeenId = latest.id;
+          showBanner(latest.message);
+        } else {
+          lastSeenId = latest.id; // still mark as seen
+        }
+      }
+    } catch (e) { /* silently fail */ }
+  }
+
+  // Start polling
+  pollAnnouncements();
+  setInterval(pollAnnouncements, 4000);
+
+  /* ── SHOW / HIDE BANNER ── */
   function showBanner(text) {
-    // Clear any existing banner timer
     clearTimeout(bannerTimer);
 
-    // Reset bar animation by replacing element
+    // Reset countdown bar animation
     const oldBar = document.getElementById('bdBannerBar');
     const newBar = oldBar.cloneNode();
     oldBar.parentNode.replaceChild(newBar, oldBar);
@@ -2008,7 +2072,7 @@ loadVideos();
     bannerBackdrop.classList.remove('show');
   }
 
-  // Click outside banner to dismiss early
+  // Click backdrop to dismiss early
   bannerBackdrop.addEventListener('click', () => {
     clearTimeout(bannerTimer);
     hideBanner();
