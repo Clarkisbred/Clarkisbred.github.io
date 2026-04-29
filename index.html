@@ -2010,46 +2010,55 @@ loadVideos();
     }
   });
 
-  /* ── POLLING — all visitors check every 4 seconds ── */
-  let lastSeenId = null;
-  let pollInitialized = false;
+  /* ── REALTIME — instant WebSocket subscription ── */
+  function connectRealtime() {
+    const wsUrl = SB_URL.replace('https://', 'wss://') + '/realtime/v1/websocket?apikey=' + SB_KEY + '&vsn=1.0.0';
+    const socket = new WebSocket(wsUrl);
+    let heartbeatInterval = null;
+    let ref = 1;
 
-  async function pollAnnouncements() {
-    try {
-      const res = await fetch(
-        `${SB_URL}/rest/v1/${BD_TABLE}?select=id,message,created_at&order=created_at.desc&limit=1`,
-        { headers: SB_HEADERS }
-      );
-      if (!res.ok) return;
-      const rows = await res.json();
-      if (!rows.length) { pollInitialized = true; return; }
-
-      const latest = rows[0];
-
-      // On first load just record the latest ID so we don't replay old messages
-      if (!pollInitialized) {
-        lastSeenId = latest.id;
-        pollInitialized = true;
-        return;
+    function send(obj) {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ ...obj, ref: String(ref++) }));
       }
+    }
 
-      // Only show if it's newer than what we've seen
-      if (latest.id !== lastSeenId) {
-        // Also guard: only show if posted within last 15 seconds
-        const age = Date.now() - new Date(latest.created_at).getTime();
-        if (age < 60000) {
-          lastSeenId = latest.id;
-          showBanner(latest.message);
-        } else {
-          lastSeenId = latest.id; // still mark as seen
+    socket.addEventListener('open', () => {
+      send({
+        topic: 'realtime:public:bd_announcements',
+        event: 'phx_join',
+        payload: {
+          config: {
+            broadcast: { self: false },
+            presence: { key: '' },
+            postgres_changes: [{ event: 'INSERT', schema: 'public', table: BD_TABLE }]
+          }
         }
-      }
-    } catch (e) { /* silently fail */ }
+      });
+      heartbeatInterval = setInterval(() => {
+        send({ topic: 'phoenix', event: 'heartbeat', payload: {} });
+      }, 25000);
+    });
+
+    socket.addEventListener('message', (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.event === 'postgres_changes') {
+          const record = msg.payload && msg.payload.data && msg.payload.data.record;
+          if (record && record.message) showBanner(record.message);
+        }
+      } catch (err) {}
+    });
+
+    socket.addEventListener('close', () => {
+      clearInterval(heartbeatInterval);
+      setTimeout(connectRealtime, 3000);
+    });
+
+    socket.addEventListener('error', () => socket.close());
   }
 
-  // Start polling
-  pollAnnouncements();
-  setInterval(pollAnnouncements, 2000);
+  connectRealtime();
 
   /* ── SHOW / HIDE BANNER ── */
   function showBanner(text) {
