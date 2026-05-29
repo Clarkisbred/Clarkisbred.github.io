@@ -2253,24 +2253,6 @@ loadVideos();
   function getModel() { return OR_MODELS[OR_MODEL_IDX % OR_MODELS.length]; }
   const OR_URL   = 'https://api.groq.com/openai/v1/chat/completions';
 
-  // Per-user daily rate limit (20 msgs/day via localStorage)
-  const DAILY_LIMIT = 20;
-  function getRateData() {
-    try { const r = localStorage.getItem('bd-rate'); return r ? JSON.parse(r) : {count:0,date:''}; }
-    catch { return {count:0,date:''}; }
-  }
-  function checkRateLimit() {
-    const today = new Date().toISOString().slice(0,10);
-    const d = getRateData();
-    if (d.date !== today) return {allowed:true, remaining:DAILY_LIMIT};
-    return {allowed: d.count < DAILY_LIMIT, remaining: Math.max(0, DAILY_LIMIT - d.count)};
-  }
-  function incrementRate() {
-    const today = new Date().toISOString().slice(0,10);
-    const d = getRateData();
-    const count = d.date === today ? d.count + 1 : 1;
-    localStorage.setItem('bd-rate', JSON.stringify({count, date:today}));
-  }
 
   // Supabase — reuse existing project for chat logging
   const SB_URL     = 'https://shnbutvfutvfhakpbvbn.supabase.co';
@@ -2529,13 +2511,6 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
     input.value = '';
     input.style.height = 'auto';
 
-    const rate = checkRateLimit();
-    if (!rate.allowed) {
-      isLoading = false; sendBtn.disabled = false;
-      appendMessage('assistant', "Honk— you've hit your 20 daily messages! Come back tomorrow.");
-      return;
-    }
-
     appendMessage('user', text);
     history.push({ role: 'user', content: text });
     showTyping();
@@ -2576,7 +2551,6 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
         history.push({ role: 'assistant', content: reply });
         appendMessage('assistant', reply);
         saveLog(text, reply);
-        incrementRate();
         if (!isOpen) unread.classList.add('show');
       }
     } catch(e) {
