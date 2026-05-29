@@ -98,7 +98,6 @@ section { padding: 6rem 3rem; }
 .cat-desc { font-size: 0.82rem; color: #666; line-height: 1.75; }
 .cat-num { font-size: 0.65rem; letter-spacing: 0.1em; color: var(--yellow); margin-bottom: 1rem; text-transform: uppercase; display: block; font-weight: 500; }
 
-/* SOCIALS */
 .socials-wrap { max-width: 1100px; margin: 0 auto; }
 .socials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1rem; margin-top: 3rem; }
 .social-card { border: 1px solid var(--border); padding: 1.8rem 1.5rem; text-decoration: none; color: var(--text); display: flex; flex-direction: column; align-items: flex-start; gap: 0.8rem; transition: background 0.2s, transform 0.15s, border-color 0.2s; background: var(--surface); }
@@ -116,13 +115,11 @@ section { padding: 6rem 3rem; }
 .fact-number { font-family: 'Fraunces', Georgia, serif; font-size: 3rem; color: var(--yellow-dark); line-height: 1; margin-bottom: 0.5rem; }
 .fact-label { font-size: 0.85rem; color: var(--facts-label); line-height: 1.7; }
 
-/* ── VIDEO CAROUSEL ── */
 .youtube { max-width: 1200px; margin: 0 auto; }
 .yt-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2.5rem; }
 .yt-link { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px; transition: color 0.2s; }
 .yt-link:hover { color: var(--text); }
 
-/* Carousel wrapper */
 .carousel-wrap { position: relative; }
 .carousel-track-outer {
   overflow: hidden;
@@ -141,7 +138,6 @@ section { padding: 6rem 3rem; }
   user-select: none;
 }
 
-/* Individual video card */
 .video-card {
   flex: 0 0 340px;
   border: 1px solid var(--border);
@@ -170,7 +166,6 @@ section { padding: 6rem 3rem; }
   opacity: 0.75;
 }
 
-/* Caption badge above card */
 .video-caption {
   font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
   font-weight: 600; padding: 0.3rem 0.75rem;
@@ -209,7 +204,6 @@ section { padding: 6rem 3rem; }
 .video-title { font-family: 'Fraunces', Georgia, serif; font-size: 1rem; line-height: 1.35; margin-bottom: 0.4rem; color: var(--text); }
 .video-meta { font-size: 0.75rem; color: var(--text3); }
 
-/* Nav arrows */
 .carousel-btn {
   position: absolute; top: 50%; transform: translateY(-50%);
   width: 44px; height: 44px; border-radius: 50%;
@@ -226,7 +220,6 @@ section { padding: 6rem 3rem; }
 .carousel-btn-next { right: -22px; }
 .carousel-btn:disabled { opacity: 0.3; pointer-events: none; }
 
-/* Dots */
 .carousel-dots { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; }
 .carousel-dot {
   width: 6px; height: 6px; border-radius: 50%;
@@ -237,7 +230,6 @@ section { padding: 6rem 3rem; }
 
 .loading-state { text-align: center; padding: 3rem; font-size: 0.75rem; color: var(--text3); }
 
-/* ── ANONYMOUS SECTION ── */
 .anon-section { background: var(--bg2); transition: background 0.3s; }
 .anon-wrap { max-width: 1200px; margin: 0 auto; }
 .anon-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2.5rem; }
@@ -343,6 +335,19 @@ section { padding: 6rem 3rem; }
   transform: scale(0.93);
   opacity: 0.7;
 }
+.anon-card.top-liked {
+  border-color: var(--yellow);
+  background: var(--yellow-pale);
+}
+.anon-card.top-liked .anon-card-label {
+  color: var(--yellow-dark);
+}
+.anon-top-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 700; color: #111; background: var(--yellow);
+  padding: 0.18rem 0.55rem; border-radius: 2px; margin-left: 0.5rem;
+}
 
 /* Top-left label */
 .anon-card-label {
@@ -419,8 +424,6 @@ section { padding: 6rem 3rem; }
   .anon-card { flex: 0 0 86vw; }
 }
 
-
-/* ── LIKE BUTTON ── */
 .anon-like-btn {
   display:flex; align-items:center; gap:0.35rem;
   background:none; border:1.5px solid var(--border);
@@ -435,7 +438,6 @@ section { padding: 6rem 3rem; }
 .anon-like-btn.liked .like-heart { animation:heartPop 0.35s cubic-bezier(0.34,1.7,0.64,1); }
 @keyframes heartPop { 0%{transform:scale(1)} 50%{transform:scale(1.6)} 100%{transform:scale(1)} }
 
-/* ── ADMIN DELETE BUTTON ── */
 .anon-delete-btn {
   display:none; position:absolute; top:0.7rem; right:0.7rem;
   background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.25);
@@ -446,29 +448,66 @@ section { padding: 6rem 3rem; }
 }
 .anon-delete-btn:hover { background:rgba(231,76,60,0.28); transform:scale(1.1); }
 
-/* ── GLOBAL BROADCAST BANNER ── */
-.broadcast-banner {
-  position:fixed; top:0; left:0; right:0; z-index:8000;
-  background:var(--yellow); color:#111;
-  padding:0.8rem 3rem 0.8rem 1.5rem;
-  display:flex; align-items:center; gap:0.8rem;
-  transform:translateY(-100%);
-  transition:transform 0.45s cubic-bezier(0.34,1.4,0.64,1);
-  box-shadow:0 4px 20px rgba(0,0,0,0.15);
-  font-family:'Plus Jakarta Sans',sans-serif; font-size:0.88rem; font-weight:500;
+.bd-banner-backdrop {
+  position:fixed; inset:0; z-index:99998;
+  background:rgba(0,0,0,0.45); backdrop-filter:blur(4px);
+  opacity:0; pointer-events:none; transition:opacity 0.4s ease;
 }
-.broadcast-banner.show { transform:translateY(0); }
-.broadcast-banner-icon { font-size:1.2rem; flex-shrink:0; }
-.broadcast-banner-msg { flex:1; line-height:1.4; }
-.broadcast-banner-close {
-  position:absolute; right:1rem; top:50%; transform:translateY(-50%);
-  background:rgba(0,0,0,0.1); border:none; border-radius:50%;
-  width:26px; height:26px; cursor:pointer; font-size:0.8rem; color:#111;
-  display:flex; align-items:center; justify-content:center; transition:background 0.2s;
+.bd-banner-backdrop.show { opacity:1; }
+.bd-banner-wrap {
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(0.88);
+  z-index:99999; width:480px; max-width:92vw;
+  pointer-events:none; opacity:0;
+  transition:opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
 }
-.broadcast-banner-close:hover { background:rgba(0,0,0,0.2); }
+.bd-banner-wrap.show { opacity:1; transform:translate(-50%,-50%) scale(1); pointer-events:all; }
+.bd-banner-halo {
+  position:absolute; inset:-40px; border-radius:50%;
+  background:radial-gradient(ellipse 70% 60% at 50% 50%, rgba(245,200,66,0.65) 0%, rgba(245,200,66,0.30) 40%, transparent 70%);
+  animation:bd-halo-pulse 1.8s ease-in-out infinite; pointer-events:none; z-index:0;
+}
+@keyframes bd-halo-pulse { 0%,100%{opacity:0.8;transform:scale(1);} 50%{opacity:1;transform:scale(1.08);} }
+.bd-banner-card {
+  position:relative; z-index:1; background:var(--surface);
+  border:2px solid var(--yellow);
+  box-shadow:0 0 0 4px rgba(245,200,66,0.18), 0 8px 40px rgba(245,200,66,0.28), 0 32px 80px rgba(0,0,0,0.18);
+  padding:2rem 2.2rem 1.6rem; overflow:hidden;
+}
+.bd-banner-card::before {
+  content:''; position:absolute; top:0; left:-120%;
+  width:80%; height:100%;
+  background:linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%);
+  animation:bd-shimmer 2.2s ease-in-out infinite; pointer-events:none;
+}
+@keyframes bd-shimmer { 0%{left:-120%;} 60%{left:140%;} 100%{left:140%;} }
+.bd-banner-bar {
+  position:absolute; bottom:0; left:0; height:3px;
+  background:linear-gradient(90deg, var(--yellow), var(--yellow-dark));
+  width:100%; transform-origin:left;
+  animation:bd-countdown 10s linear forwards;
+}
+@keyframes bd-countdown { from{transform:scaleX(1);} to{transform:scaleX(0);} }
+.bd-banner-profile { display:flex; align-items:center; gap:0.9rem; margin-bottom:1.2rem; }
+.bd-banner-pfp {
+  width:52px; height:52px; border-radius:50%; overflow:hidden;
+  border:2.5px solid var(--yellow);
+  box-shadow:0 0 0 4px rgba(245,200,66,0.22), 0 0 20px rgba(245,200,66,0.5);
+  flex-shrink:0;
+}
+.bd-banner-pfp img { width:100%; height:100%; object-fit:cover; display:block; }
+.bd-banner-meta { flex:1; }
+.bd-banner-author { font-size:0.62rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--yellow-dark); font-weight:700; margin-bottom:0.15rem; }
+.bd-banner-says { font-family:'Fraunces',Georgia,serif; font-size:0.88rem; color:var(--text); font-style:italic; }
+.bd-banner-msg { font-family:'Fraunces',Georgia,serif; font-size:1.25rem; line-height:1.55; color:var(--text); padding-bottom:0.4rem; }
+.bd-banner-x {
+  position:absolute; top:0.75rem; right:0.85rem;
+  background:none; border:none; cursor:pointer;
+  color:var(--text3); font-size:1rem; line-height:1;
+  padding:0.25rem 0.4rem; z-index:2; transition:color 0.2s, transform 0.2s;
+}
+.bd-banner-x:hover { color:var(--text); transform:scale(1.2); }
 
-/* ── ADMIN PANEL ── */
 .admin-overlay {
   display:none; position:fixed; inset:0; z-index:9000;
   background:rgba(0,0,0,0.6); backdrop-filter:blur(8px);
@@ -543,6 +582,90 @@ section { padding: 6rem 3rem; }
 /* logout */
 .admin-logout-btn { font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text3); background:none; border:none; cursor:pointer; padding:0; font-family:inherit; transition:color 0.2s; align-self:flex-start; }
 .admin-logout-btn:hover { color:var(--text); }
+.bd-admin-overlay {
+  position:fixed; inset:0; z-index:99990; background:rgba(0,0,0,0.72);
+  backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity 0.25s ease;
+}
+.bd-admin-overlay.open { opacity:1; pointer-events:all; }
+.bd-admin-modal {
+  background:var(--surface); border:1px solid var(--border);
+  padding:2.5rem 2.8rem; width:360px; max-width:90vw; position:relative;
+  box-shadow:0 32px 80px rgba(0,0,0,0.25);
+  transform:translateY(16px) scale(0.97);
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bd-admin-overlay.open .bd-admin-modal { transform:translateY(0) scale(1); }
+.bd-admin-eyebrow { font-size:0.65rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--yellow-dark); font-weight:600; margin-bottom:0.4rem; }
+.bd-admin-title { font-family:'Fraunces',Georgia,serif; font-size:1.6rem; line-height:1.1; margin-bottom:1.6rem; color:var(--text); }
+.bd-admin-input {
+  width:100%; border:1px solid var(--border); background:var(--bg2); color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:0.92rem;
+  padding:0.75rem 1rem; outline:none; letter-spacing:0.04em;
+  transition:border-color 0.2s; margin-bottom:1rem;
+}
+.bd-admin-input:focus { border-color:var(--yellow); }
+.bd-admin-input.shake { animation:bd-shake 0.35s ease; border-color:#e55; }
+@keyframes bd-shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
+.bd-admin-btn {
+  width:100%; background:var(--yellow); color:#111;
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:0.72rem;
+  letter-spacing:0.06em; text-transform:uppercase; font-weight:600;
+  border:none; padding:0.85rem; cursor:pointer; transition:background 0.2s, transform 0.15s;
+}
+.bd-admin-btn:hover { background:var(--yellow-dark); color:#fff; transform:translateY(-1px); }
+.bd-admin-close {
+  position:absolute; top:1rem; right:1rem; background:none; border:none; cursor:pointer;
+  color:var(--text3); font-size:1.2rem; line-height:1; padding:0.25rem 0.5rem; transition:color 0.2s;
+}
+.bd-admin-close:hover { color:var(--text); }
+.bd-admin-err { font-size:0.72rem; color:#e55; margin-top:-0.5rem; margin-bottom:0.8rem; min-height:1em; letter-spacing:0.03em; }
+.bd-panel-overlay {
+  position:fixed; inset:0; z-index:99990; background:rgba(0,0,0,0.72);
+  backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity 0.25s ease;
+}
+.bd-panel-overlay.open { opacity:1; pointer-events:all; }
+.bd-panel {
+  background:var(--surface); border:1px solid var(--border);
+  padding:2.5rem 2.8rem; width:460px; max-width:92vw; position:relative;
+  box-shadow:0 32px 80px rgba(0,0,0,0.25);
+  transform:translateY(16px) scale(0.97);
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bd-panel-overlay.open .bd-panel { transform:translateY(0) scale(1); }
+.bd-panel-eyebrow { font-size:0.65rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--yellow-dark); font-weight:600; margin-bottom:0.3rem; }
+.bd-panel-title { font-family:'Fraunces',Georgia,serif; font-size:1.5rem; margin-bottom:1.6rem; color:var(--text); }
+.bd-panel-label { font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text3); margin-bottom:0.5rem; display:block; font-weight:500; }
+.bd-panel-textarea {
+  width:100%; min-height:110px; resize:vertical;
+  border:1px solid var(--border); background:var(--bg2); color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:0.92rem;
+  padding:0.75rem 1rem; outline:none; line-height:1.65;
+  transition:border-color 0.2s; margin-bottom:1.2rem;
+}
+.bd-panel-textarea:focus { border-color:var(--yellow); }
+.bd-panel-send {
+  width:100%; background:var(--yellow); color:#111;
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:0.72rem;
+  letter-spacing:0.06em; text-transform:uppercase; font-weight:600;
+  border:none; padding:0.85rem; cursor:pointer; transition:background 0.2s, transform 0.15s;
+}
+.bd-panel-send:hover { background:var(--yellow-dark); color:#fff; transform:translateY(-1px); }
+.bd-panel-close {
+  position:absolute; top:1rem; right:1rem; background:none; border:none; cursor:pointer;
+  color:var(--text3); font-size:1.2rem; padding:0.25rem 0.5rem; transition:color 0.2s;
+}
+.bd-panel-close:hover { color:var(--text); }
+.bd-panel-hint { font-size:0.7rem; color:var(--text3); margin-top:0.8rem; text-align:center; letter-spacing:0.03em; }
+.bd-panel-divider { height:1px; background:var(--border); margin:1.4rem 0 0; }
+.bd-panel-delete-info { font-size:0.78rem; color:var(--text2); line-height:1.6; margin-bottom:1.2rem; }
+.bd-panel-logout {
+  font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text3);
+  background:none; border:none; cursor:pointer; padding:0; font-family:inherit; transition:color 0.2s;
+}
+.bd-panel-logout:hover { color:var(--text); }
+
 footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; transition: border-color 0.3s; }
 .footer-logo { font-family: 'Fraunces', Georgia, serif; font-size: 1.2rem; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
 .footer-pfp { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; border: 2px solid var(--yellow); flex-shrink: 0; }
@@ -559,7 +682,6 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s, transform 0.7s; }
 .reveal.visible { opacity: 1; transform: none; }
 
-/* ── TABLET (max 1024px) ── */
 @media (max-width: 1024px) {
   nav { padding: 1rem 2rem; }
   section { padding: 5rem 2rem; }
@@ -570,7 +692,6 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
   .facts-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ── MOBILE (max 768px) ── */
 @media (max-width: 768px) {
   /* Nav */
   nav { padding: 0.9rem 1.2rem; gap: 0.5rem; }
@@ -631,7 +752,6 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
   .footer-links { flex-wrap: wrap; gap: 1rem; }
 }
 
-/* ── SMALL PHONES (max 420px) ── */
 @media (max-width: 420px) {
   .hero-profile { width: 88px; height: 88px; }
   .cat-grid { grid-template-columns: 1fr; }
@@ -642,7 +762,6 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
   .social-cta { display: none; }
 }
 
-/* ── HAMBURGER ── */
 .hamburger {
   display: none; flex-direction: column; justify-content: center;
   gap: 5px; background: none; border: none; cursor: pointer;
@@ -658,7 +777,6 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
 .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
 .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* ── BACKDROP (dark blurred overlay behind drawer) ── */
 .menu-backdrop {
   display: none;
   position: fixed; inset: 0; z-index: 200;
@@ -673,7 +791,6 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
   -webkit-backdrop-filter: blur(6px);
 }
 
-/* ── DRAWER PANEL (slides in from right) ── */
 .mobile-menu {
   display: none;
   position: fixed; top: 0; right: 0; bottom: 0;
@@ -749,7 +866,6 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
   .mobile-menu.open { pointer-events: all; }
 }
 
-/* ── TOUCH devices: remove hover glitches, always show play btn ── */
 @media (hover: none) {
   .video-card:hover { transform: none; box-shadow: none; border-color: var(--border); }
   .social-card:hover { transform: none; }
@@ -782,10 +898,8 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
   </div>
 </nav>
 
-<!-- Backdrop -->
 <div class="menu-backdrop" id="menu-backdrop"></div>
 
-<!-- Drawer -->
 <div class="mobile-menu" id="mobile-menu">
   <div class="drawer-header">
     <span class="drawer-logo" style="display:flex;align-items:center;gap:0.5rem;"><span class="nav-pfp" style="width:22px;height:22px;"><img id="drawer-pfp-img" alt="BreDuck" /></span> BreDuck</span>
@@ -892,7 +1006,6 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
   </div>
 </section>
 
-<!-- SOCIALS -->
 <section id="socials">
   <div class="socials-wrap">
     <p class="section-label">Connect</p>
@@ -972,14 +1085,13 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
       <a href="https://www.youtube.com/@BreDuck/videos" target="_blank" class="yt-link">All videos ↗</a>
     </div>
 
-    <!-- Carousel -->
-    <div class="carousel-wrap">
+        <div class="carousel-wrap">
       <button class="carousel-btn carousel-btn-prev" id="carousel-prev" aria-label="Previous">
         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <div class="carousel-track-outer">
         <div class="carousel-track" id="carousel-track">
-          <div class="loading-state" id="loading-msg">🦆 Fetching your latest videos...</div>
+          <div class="loading-state" id="loading-msg">Loading videos…</div>
         </div>
       </div>
       <button class="carousel-btn carousel-btn-next" id="carousel-next" aria-label="Next">
@@ -1001,8 +1113,7 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
       <h2 class="section-title reveal">Say something<br><em style="font-style:italic;color:var(--yellow-dark)">anonymously.</em></h2>
     </div>
 
-    <!-- Input -->
-    <div class="anon-input-area reveal">
+        <div class="anon-input-area reveal">
       <div class="anon-input-wrap">
         <input type="text" class="anon-input" id="anon-input"
           placeholder="leave a message for the pond…" maxlength="280" autocomplete="off" />
@@ -1016,11 +1127,10 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
     </div>
     <p class="anon-cooldown" id="anon-cooldown"></p>
 
-    <!-- Cards carousel -->
-    <div class="anon-carousel-wrap reveal">
+        <div class="anon-carousel-wrap reveal">
       <div class="anon-track-outer">
         <div class="anon-track" id="anon-track">
-          <!-- filled by JS -->
+          
         </div>
       </div>
     </div>
@@ -1039,7 +1149,6 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
 </footer>
 
 <script>
-// ── COPY HERO PFP TO NAV / DRAWER / FOOTER ──
 (function() {
   function applyPfp() {
     const heroPfp = document.querySelector('.hero-profile img');
@@ -1050,13 +1159,11 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
       if (el) el.src = src;
     });
   }
-  // Run after hero image has loaded
   const heroImg = document.querySelector('.hero-profile img');
   if (heroImg && heroImg.complete) {
     applyPfp();
   } else if (heroImg) {
     heroImg.addEventListener('load', applyPfp);
-    // also try immediately in case it's cached
     setTimeout(applyPfp, 0);
   }
 })();
@@ -1079,10 +1186,8 @@ function closeMenu() {
 }
 hamburger.addEventListener('click', openMenu);
 mobileClose.addEventListener('click', closeMenu);
-menuBackdrop.addEventListener('click', closeMenu); // click outside = close
-mobileLinks.forEach(l => l.addEventListener('click', closeMenu));
+menuBackdrop.addEventListener('click', closeMenu); mobileLinks.forEach(l => l.addEventListener('click', closeMenu));
 
-// DARK MODE
 const html = document.documentElement;
 const toggle = document.getElementById('theme-toggle');
 const ball = document.getElementById('toggle-ball');
@@ -1109,7 +1214,6 @@ reveals.forEach(el => obs.observe(el));
 const CHANNEL_ID = 'UCEQodoKAeqa4ZrIjZ-BYN0g';
 const YT_RSS = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
 
-// ── CAPTION LABELS ── assigned by position (index 0 = latest since RSS is newest-first)
 function getCaption(index) {
   if (index === 0) return { text: '🦆 Latest', cls: 'caption-latest' };
   if (index === 1) return { text: '🔥 Most Viewed', cls: 'caption-popular' };
@@ -1117,7 +1221,6 @@ function getCaption(index) {
   return { text: labels[index - 2] || 'Watch More', cls: 'caption-default' };
 }
 
-// ── BUILD A VIDEO CARD ──
 function makeVideoCard(videoId, title, date, link, index) {
   const thumbBase = `https://img.youtube.com/vi/${videoId}`;
   const caption = getCaption(index);
@@ -1145,7 +1248,6 @@ function makeVideoCard(videoId, title, date, link, index) {
   return wrap;
 }
 
-// ── XML PARSER ──
 function parseXMLItems(xmlText) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(xmlText, 'application/xml');
@@ -1164,7 +1266,6 @@ function parseXMLItems(xmlText) {
   }).filter(v => v.videoId);
 }
 
-// ── PROXY FETCHERS ──
 async function tryRss2json() {
   const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(YT_RSS)}&count=8`;
   const res = await fetch(url);
@@ -1205,7 +1306,6 @@ async function getLatestVideoIdsFromPage() {
   } catch(e) { return []; }
 }
 
-// ── CAROUSEL CONTROLLER ──
 let carouselIndex = 0;
 let carouselItems = [];
 
@@ -1222,8 +1322,7 @@ function updateCarousel(animate = true) {
   });
   dots.forEach((dot, i) => dot.classList.toggle('active', i === carouselIndex));
 
-  // Scroll so active card is centered
-  const activeCard = cards[carouselIndex];
+    const activeCard = cards[carouselIndex];
   if (activeCard) {
     const outer = track.parentElement;
     const outerW = outer.offsetWidth;
@@ -1238,8 +1337,7 @@ function updateCarousel(animate = true) {
     track.style.transform = `translateX(${-scrollTarget}px)`;
   }
 
-  // Update button states
-  document.getElementById('carousel-prev').disabled = carouselIndex === 0;
+    document.getElementById('carousel-prev').disabled = carouselIndex === 0;
   document.getElementById('carousel-next').disabled = carouselIndex === total - 1;
 }
 
@@ -1255,11 +1353,10 @@ function buildDots(count) {
   }
 }
 
-// ── MAIN LOAD ──
 async function loadVideos() {
   const track = document.getElementById('carousel-track');
   const loading = document.getElementById('loading-msg');
-  loading.textContent = '🦆 Fetching your latest videos...';
+  loading.textContent = 'Loading videos…';
 
   let items = null;
   for (const attempt of [tryRss2json, tryAllOrigins, tryCorsProxy]) {
@@ -1274,8 +1371,7 @@ async function loadVideos() {
       track.appendChild(makeVideoCard(v.videoId, v.title, v.date, v.link, i));
     });
     buildDots(items.length);
-    // Small delay so layout is computed before we center
-    setTimeout(() => updateCarousel(false), 50);
+        setTimeout(() => updateCarousel(false), 50);
   } else {
     loading.innerHTML = `<div style="padding:2rem;text-align:center">
       <div style="font-size:3rem;margin-bottom:1rem">🦆</div>
@@ -1287,7 +1383,6 @@ async function loadVideos() {
   }
 }
 
-// ── ARROW BUTTONS ──
 document.getElementById('carousel-prev').addEventListener('click', () => {
   if (carouselIndex > 0) { carouselIndex--; updateCarousel(); }
 });
@@ -1296,8 +1391,6 @@ document.getElementById('carousel-next').addEventListener('click', () => {
   if (carouselIndex < cards.length - 1) { carouselIndex++; updateCarousel(); }
 });
 
-// ── SCROLL WHEEL HIJACK ──
-// When mouse is over the carousel, scroll wheel moves cards instead of the page
 const carouselOuter = document.querySelector('.carousel-track-outer');
 let scrollCooldown = false;
 
@@ -1307,19 +1400,14 @@ carouselOuter.addEventListener('wheel', e => {
 
   const cards = document.querySelectorAll('.video-card');
   if (e.deltaY > 0 || e.deltaX > 0) {
-    // scroll down or right → next card
     if (carouselIndex < cards.length - 1) { carouselIndex++; updateCarousel(); }
   } else {
-    // scroll up or left → previous card
     if (carouselIndex > 0) { carouselIndex--; updateCarousel(); }
   }
 
-  // small cooldown so one scroll tick = one card
-  scrollCooldown = true;
+    scrollCooldown = true;
   setTimeout(() => { scrollCooldown = false; }, 420);
-}, { passive: false }); // passive: false needed to allow preventDefault
-
-// ── TOUCH SWIPE — smooth drag feel ──
+}, { passive: false }); 
 let touchStartX = 0;
 let touchStartIndex = 0;
 let isDragging = false;
@@ -1361,7 +1449,6 @@ track.addEventListener('touchend', e => {
   updateCarousel();
 }, { passive: true });
 
-// ── KEYBOARD ARROWS ──
 document.addEventListener('keydown', e => {
   const section = document.getElementById('videos');
   const rect = section.getBoundingClientRect();
@@ -1374,13 +1461,11 @@ document.addEventListener('keydown', e => {
 
 loadVideos();
 
-// ── ANONYMOUS MESSAGES — Supabase global backend ──
 (function() {
   const HERO_IMG_SRC = document.querySelector('.hero-profile img')?.src || '';
   const FOUR_HOURS = 4 * 60 * 60 * 1000;
   const LAST_SEND_KEY = 'breduck-anon-last';
 
-  // ── PASTE YOUR SUPABASE KEYS HERE ──
   const SUPABASE_URL  = 'https://shnbutvfutvfhakpbvbn.supabase.co';
   const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNobmJ1dHZmdXR2Zmhha3BidmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNjIzMjEsImV4cCI6MjA5MjkzODMyMX0.QZYmpeeGWa8F3YddlxbcKkmYwGrRjdQ5iNau6nJpuVQ';
 
@@ -1402,32 +1487,34 @@ loadVideos();
     'Content-Type': 'application/json'
   };
 
-  // ── FETCH all messages ordered oldest→newest ──
   async function fetchMessages() {
-    // If keys are still placeholders, just return seed messages
-    if (SUPABASE_URL.includes('YOUR_') || SUPABASE_KEY.includes('YOUR_')) {
-      console.warn('⚠️ Supabase keys not set — showing seed messages');
-      return SEED.map(m => ({ message: m }));
-    }
     try {
       const url = SUPABASE_URL + '/rest/v1/' + TABLE
-        + '?select=id,message,created_at&order=created_at.asc&limit=100';
+        + '?select=id,message,likes,created_at&order=created_at.asc&limit=100';
       const res = await fetch(url, { headers: HEADERS });
-      if (!res.ok) {
-        console.error('Supabase fetch error:', res.status, await res.text());
-        return SEED.map(m => ({ message: m }));
-      }
+      if (!res.ok) return SEED.map(m => ({ message: m }));
       const data = await res.json();
-      console.log('✅ Supabase fetched:', data.length, 'messages');
       if (!Array.isArray(data) || data.length === 0) return SEED.map(m => ({ message: m }));
       return data;
     } catch(e) {
-      console.error('fetchMessages error:', e);
       return SEED.map(m => ({ message: m }));
     }
   }
 
-  // ── INSERT a new message ──
+  async function updateLikeInDB(id, delta) {
+    try {
+      const getRes = await fetch(SUPABASE_URL + '/rest/v1/' + TABLE + '?id=eq.' + id + '&select=likes', { headers: HEADERS });
+      const rows = await getRes.json();
+      const current = (rows[0]?.likes) || 0;
+      const newVal = Math.max(0, current + delta);
+      await fetch(SUPABASE_URL + '/rest/v1/' + TABLE + '?id=eq.' + id, {
+        method: 'PATCH',
+        headers: Object.assign({}, HEADERS, { 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({ likes: newVal })
+      });
+    } catch(e) {}
+  }
+
   async function insertMessage(text) {
     const url = SUPABASE_URL + '/rest/v1/' + TABLE;
     const res = await fetch(url, {
@@ -1458,21 +1545,22 @@ loadVideos();
             .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
-  function makeAnonCard(msg, num, id) {
+  function makeAnonCard(msg, num, id, dbLikes, isTopLiked) {
     const cardKey  = 'liked-' + (id || num);
-    const likesKey = 'likes-count-' + (id || num);
     const isLiked  = localStorage.getItem(cardKey) === '1';
-    let likesCount = parseInt(localStorage.getItem(likesKey) || '0', 10);
+    let likesCount = typeof dbLikes === 'number' ? dbLikes : 0;
 
     const card = document.createElement('div');
-    card.className = 'anon-card';
+    card.className = 'anon-card' + (isTopLiked ? ' top-liked' : '');
 
     const pfpHtml = HERO_IMG_SRC
       ? `<img src="${HERO_IMG_SRC}" alt="Breduck pfp" loading="lazy">`
       : '<div style="width:100%;height:100%;background:var(--yellow-pale);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🦆</div>';
 
+    const topBadge = isTopLiked ? '<span class="anon-top-badge">🏆 Top</span>' : '';
+
     card.innerHTML = `
-      <div class="anon-card-label">Breduck's Anonymous #${num}</div>
+      <div class="anon-card-label">Breduck's Anonymous #${num}${topBadge}</div>
       <div class="anon-card-msg">${escapeHtml(msg)}</div>
       <div class="anon-card-footer">
         <div class="anon-pfp">${pfpHtml}</div>
@@ -1483,8 +1571,7 @@ loadVideos();
         </button>
       </div>`;
 
-    // ── Like logic ──
-    card.querySelector('.anon-like-btn').addEventListener('click', e => {
+    card.querySelector('.anon-like-btn').addEventListener('click', async e => {
       e.stopPropagation();
       const btn = e.currentTarget;
       const already = localStorage.getItem(cardKey) === '1';
@@ -1493,17 +1580,17 @@ loadVideos();
         localStorage.removeItem(cardKey);
         btn.classList.remove('liked');
         btn.querySelector('.like-heart').textContent = '🤍';
+        if (id) updateLikeInDB(id, -1);
       } else {
         likesCount++;
         localStorage.setItem(cardKey, '1');
         btn.classList.add('liked');
         btn.querySelector('.like-heart').textContent = '❤️';
+        if (id) updateLikeInDB(id, 1);
       }
-      localStorage.setItem(likesKey, String(likesCount));
       btn.querySelector('.like-num').textContent = likesCount > 0 ? likesCount : '';
     });
 
-    // ── Delete button (admin only) ──
     const delBtn = document.createElement('button');
     delBtn.className = 'anon-delete-btn';
     delBtn.textContent = '🗑';
@@ -1576,10 +1663,20 @@ loadVideos();
       document.getElementById('anon-dots').innerHTML = '';
       return;
     }
+    // Find the top-liked card (only real DB messages with id)
+    let topId = null, topLikes = 0;
+    msgs.forEach(item => {
+      if (typeof item === 'object' && item.id && typeof item.likes === 'number' && item.likes > topLikes) {
+        topLikes = item.likes;
+        topId = item.id;
+      }
+    });
     msgs.forEach((item, i) => {
-      const msg = typeof item === 'string' ? item : item.message;
-      const id  = (typeof item === 'object' && item.id) ? item.id : null;
-      track.appendChild(makeAnonCard(msg, i + 1, id));
+      const msg      = typeof item === 'string' ? item : item.message;
+      const id       = (typeof item === 'object' && item.id) ? item.id : null;
+      const dbLikes  = (typeof item === 'object' && typeof item.likes === 'number') ? item.likes : 0;
+      const isTop    = topId !== null && id === topId && topLikes > 0;
+      track.appendChild(makeAnonCard(msg, i + 1, id, dbLikes, isTop));
     });
     buildAnonDots(msgs.length);
     anonIndex = Math.max(0, Math.min(anonIndex, msgs.length - 1));
@@ -1592,7 +1689,6 @@ loadVideos();
     renderAnonCards(msgs);
   }
 
-  // ── INIT — show seed cards immediately so nothing looks broken ──
   renderAnonCards(SEED.map(m => ({ message: m })));
   updateCooldownUI();
 
@@ -1637,8 +1733,7 @@ loadVideos();
     const text  = input.value.trim();
     if (!text) return;
 
-    // plane animation
-    const svgEl = btn.querySelector('svg');
+        const svgEl = btn.querySelector('svg');
     svgEl.classList.remove('plane-flying');
     void svgEl.offsetWidth;
     svgEl.classList.add('plane-flying');
@@ -1653,8 +1748,7 @@ loadVideos();
       await insertMessage(text);
     } catch(e) {
       console.error('Send failed:', e);
-      // show locally even if backend failed
-      anonMessages.push({ message: text });
+            anonMessages.push({ message: text });
     }
 
     await refreshMessages();
@@ -1667,7 +1761,6 @@ loadVideos();
     if (e.key === 'Enter') { e.preventDefault(); doSend(); }
   });
 
-  // ── SCROLL WHEEL ──
   const anonOuter = document.querySelector('.anon-track-outer');
   let anonScrollCooldown = false;
   anonOuter.addEventListener('wheel', e => {
@@ -1683,7 +1776,6 @@ loadVideos();
     setTimeout(() => { anonScrollCooldown = false; }, 420);
   }, { passive: false });
 
-  // ── TOUCH SWIPE ──
   let anonTouchStartX = 0;
   let anonTouchStartIndex = 0;
   let anonDragging = false;
@@ -1720,7 +1812,6 @@ loadVideos();
     updateAnon();
   }, { passive: true });
 
-  // ── KEYBOARD ──
   document.addEventListener('keydown', e => {
     const section = document.getElementById('anonymous');
     if (!section) return;
@@ -1732,208 +1823,209 @@ loadVideos();
     }
   });
 
-  // ── INIT ──
-  // (seed cards already rendered above — now fetch real data from Supabase)
-  refreshMessages();
-  // Refresh every 30s so messages from others appear live
-  setInterval(refreshMessages, 30000);
+    refreshMessages();
+    setInterval(refreshMessages, 30000);
 })();
 </script>
 
-<!-- ── BROADCAST BANNER ── -->
-<div class="broadcast-banner" id="broadcast-banner">
-  <span class="broadcast-banner-icon">📢</span>
-  <span class="broadcast-banner-msg" id="broadcast-banner-msg"></span>
-  <button class="broadcast-banner-close" id="broadcast-banner-close">✕</button>
+<div class="bd-admin-overlay" id="bdLoginOverlay">
+  <div class="bd-admin-modal">
+    <button class="bd-admin-close" id="bdLoginClose" title="Close">✕</button>
+    <div class="bd-admin-eyebrow">Admin Access</div>
+    <div class="bd-admin-title">BreDuck<br>Control Panel</div>
+    <input class="bd-admin-input" id="bdAdminPw" type="password" placeholder="Enter password…" autocomplete="off" />
+    <div class="bd-admin-err" id="bdAdminErr"></div>
+    <button class="bd-admin-btn" id="bdAdminEnter">Enter →</button>
+  </div>
 </div>
 
-<!-- ── ADMIN PANEL ── -->
-<div class="admin-overlay" id="admin-overlay">
-  <div class="admin-panel">
-    <div class="admin-header">
-      <div class="admin-header-title">🦆 BreDuck Admin</div>
-      <button class="admin-close-btn" id="admin-close-btn">✕</button>
-    </div>
-    <div class="admin-body">
+<div class="bd-panel-overlay" id="bdPanelOverlay">
+  <div class="bd-panel">
+    <button class="bd-panel-close" id="bdPanelClose" title="Close">✕</button>
+    <div class="bd-panel-eyebrow">🦆 BreDuck Admin</div>
+    <div class="bd-panel-title">Global Announcement</div>
+    <label class="bd-panel-label" for="bdAnnounceText">Your message</label>
+    <textarea class="bd-panel-textarea" id="bdAnnounceText" placeholder="Type your message to the world…" maxlength="300"></textarea>
+    <button class="bd-panel-send" id="bdAnnounceSend">📢 Broadcast Now</button>
+    <div class="bd-panel-hint">Banner appears to all visitors · disappears in 10 seconds</div>
+    <div class="bd-panel-divider"></div>
+    <div class="bd-panel-label" style="margin-top:1rem;">Delete anonymous messages</div>
+    <div class="bd-panel-delete-info">While this panel is open, a 🗑 trash icon appears on every anonymous card.</div>
+    <button class="bd-panel-logout" id="bdPanelLogout">← Log out of admin</button>
+  </div>
+</div>
 
-      <!-- LOGIN STATE -->
-      <div class="admin-login-section" id="admin-login-section">
-        <div>
-          <span class="admin-field-label">Admin Password</span>
-          <input type="password" class="admin-pw-input" id="admin-pw-input"
-                 placeholder="enter password…" autocomplete="off">
-        </div>
-        <div class="admin-login-error" id="admin-login-error">Wrong password. Try again.</div>
-        <button class="admin-login-btn" id="admin-login-btn">Unlock Panel</button>
+<div class="bd-banner-backdrop" id="bdBannerBackdrop"></div>
+<div class="bd-banner-wrap" id="bdBanner">
+  <div class="bd-banner-halo"></div>
+  <div class="bd-banner-card">
+    <div class="bd-banner-bar" id="bdBannerBar"></div>
+    <button class="bd-banner-x" id="bdBannerClose" title="Dismiss">✕</button>
+    <div class="bd-banner-profile">
+      <div class="bd-banner-pfp"><img id="bdBannerPfp" src="" alt="BreDuck" onerror="this.src='https://ui-avatars.com/api/?name=B&background=F5C842&color=111&bold=true&size=52'" /></div>
+      <div class="bd-banner-meta">
+        <div class="bd-banner-author">BreDuck</div>
+        <div class="bd-banner-says">BreDuck says…</div>
       </div>
-
-      <!-- LOGGED-IN STATE -->
-      <div class="admin-logged-section" id="admin-logged-section">
-
-        <!-- Broadcast -->
-        <div class="admin-section-title">📢 Broadcast Message</div>
-        <div>
-          <span class="admin-field-label">Message</span>
-          <input type="text" class="admin-broadcast-input" id="admin-broadcast-input"
-                 placeholder="type a message to show everyone…" maxlength="180" autocomplete="off">
-        </div>
-        <div class="admin-btn-row">
-          <button class="admin-btn-primary" id="admin-broadcast-btn">📢 Send to everyone</button>
-          <button class="admin-btn-ghost" id="admin-clear-btn">Clear banner</button>
-          <span class="admin-status" id="admin-broadcast-status"></span>
-        </div>
-
-        <div class="admin-divider"></div>
-
-        <!-- Delete info -->
-        <div class="admin-section-title">🗑 Delete Messages</div>
-        <div class="admin-delete-info">
-          While this panel is open, a <strong>🗑 trash icon</strong> appears on every anonymous card. Click it to permanently delete that message from Supabase.
-        </div>
-
-        <div class="admin-divider"></div>
-        <button class="admin-logout-btn" id="admin-logout-btn">← Log out of admin</button>
-      </div>
-
     </div>
+    <div class="bd-banner-msg" id="bdBannerMsg"></div>
   </div>
 </div>
 
 <script>
-// ── ADMIN (Shift + type "breduck" to open) ──
 (function() {
-  const PASS         = 'clarkson3?!';
-  const SUPABASE_URL = 'https://shnbutvfutvfhakpbvbn.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNobmJ1dHZmdXR2Zmhha3BidmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNjIzMjEsImV4cCI6MjA5MjkzODMyMX0.QZYmpeeGWa8F3YddlxbcKkmYwGrRjdQ5iNau6nJpuVQ';
-  const HEADERS      = { 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY, 'Content-Type':'application/json' };
-  const POPUP_TABLE  = 'admin_popup';
+  const ADMIN_PW  = 'clarkson3?!';
+  const TRIGGER   = 'breduck';
+  const BANNER_MS = 10000;
+  const SB_URL    = 'https://shnbutvfutvfhakpbvbn.supabase.co';
+  const SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNobmJ1dHZmdXR2Zmhha3BidmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNjIzMjEsImV4cCI6MjA5MjkzODMyMX0.QZYmpeeGWa8F3YddlxbcKkmYwGrRjdQ5iNau6nJpuVQ';
+  const BD_TABLE  = 'bd_announcements';
+  const SB_HEADERS = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
 
-  // ── Secret trigger: Shift + type "breduck" ──
-  let buf = '', shift = false;
+  let keyBuffer = '', bufferTimer = null, bannerTimer = null;
+
+  // Keyboard trigger: Shift + Alt + type "breduck"
   document.addEventListener('keydown', e => {
-    if (e.key === 'Shift') { shift = true; return; }
-    if (shift) {
-      buf += e.key.toLowerCase();
-      if (buf.length > 10) buf = buf.slice(-10);
-      if (buf.includes('breduck')) { buf = ''; openAdmin(); }
-    } else { buf = ''; }
+    if (!e.shiftKey || !e.altKey || e.key.length !== 1 || !/[a-zA-Z]/.test(e.key)) {
+      if (!e.shiftKey || !e.altKey) { keyBuffer = ''; clearTimeout(bufferTimer); }
+      return;
+    }
+    const tag = document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    keyBuffer += e.key.toLowerCase();
+    if (keyBuffer.length > TRIGGER.length) keyBuffer = keyBuffer.slice(-TRIGGER.length);
+    clearTimeout(bufferTimer);
+    bufferTimer = setTimeout(() => { keyBuffer = ''; }, 2000);
+    if (keyBuffer === TRIGGER) { keyBuffer = ''; openLogin(); }
   });
-  document.addEventListener('keyup', e => { if (e.key === 'Shift') { shift = false; buf = ''; } });
 
-  // Elements
-  const overlay       = document.getElementById('admin-overlay');
-  const closeBtn      = document.getElementById('admin-close-btn');
-  const loginSec      = document.getElementById('admin-login-section');
-  const loggedSec     = document.getElementById('admin-logged-section');
-  const pwInput       = document.getElementById('admin-pw-input');
-  const loginBtn      = document.getElementById('admin-login-btn');
-  const loginErr      = document.getElementById('admin-login-error');
-  const logoutBtn     = document.getElementById('admin-logout-btn');
-  const broadcastInput= document.getElementById('admin-broadcast-input');
-  const broadcastBtn  = document.getElementById('admin-broadcast-btn');
-  const clearBtn      = document.getElementById('admin-clear-btn');
-  const statusEl      = document.getElementById('admin-broadcast-status');
-  const banner        = document.getElementById('broadcast-banner');
-  const bannerMsg     = document.getElementById('broadcast-banner-msg');
-  const bannerClose   = document.getElementById('broadcast-banner-close');
+  const loginOverlay = document.getElementById('bdLoginOverlay');
+  const loginClose   = document.getElementById('bdLoginClose');
+  const pwInput      = document.getElementById('bdAdminPw');
+  const enterBtn     = document.getElementById('bdAdminEnter');
+  const errMsg       = document.getElementById('bdAdminErr');
+  const panelOverlay = document.getElementById('bdPanelOverlay');
+  const panelClose   = document.getElementById('bdPanelClose');
+  const announceText = document.getElementById('bdAnnounceText');
+  const announceBtn  = document.getElementById('bdAnnounceSend');
+  const logoutBtn    = document.getElementById('bdPanelLogout');
+  const bannerWrap   = document.getElementById('bdBanner');
+  const bannerBackdrop = document.getElementById('bdBannerBackdrop');
+  const bannerMsgEl  = document.getElementById('bdBannerMsg');
+  const bannerClose  = document.getElementById('bdBannerClose');
 
-  function openAdmin() {
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    sessionStorage.getItem('breduck-admin') === '1' ? showLogged() : showLogin();
-    setTimeout(() => pwInput.focus(), 100);
+  // Set profile pic in banner from site hero image
+  const heroPfpEl = document.querySelector('.hero-profile img');
+  if (heroPfpEl) {
+    const setPfp = () => { const el = document.getElementById('bdBannerPfp'); if (el && heroPfpEl.src) el.src = heroPfpEl.src; };
+    heroPfpEl.complete ? setPfp() : heroPfpEl.addEventListener('load', setPfp);
+    setTimeout(setPfp, 200);
   }
-  function closeAdmin() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
-  function showLogin() {
-    loginSec.style.display = 'flex'; loggedSec.classList.remove('show');
-    pwInput.value = ''; loginErr.classList.remove('show');
-  }
-  function showLogged() { loginSec.style.display = 'none'; loggedSec.classList.add('show'); }
 
-  closeBtn.addEventListener('click', closeAdmin);
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeAdmin(); });
+  function openLogin() {
+    loginOverlay.classList.add('open');
+    errMsg.textContent = ''; pwInput.value = '';
+    setTimeout(() => pwInput.focus(), 200);
+  }
+  function closeLogin() { loginOverlay.classList.remove('open'); pwInput.value = ''; errMsg.textContent = ''; }
+  function openPanel() { panelOverlay.classList.add('open'); setTimeout(() => announceText.focus(), 200); }
+  function closePanel() { panelOverlay.classList.remove('open'); }
 
   function tryLogin() {
-    if (pwInput.value === PASS) {
+    if (pwInput.value === ADMIN_PW) {
       sessionStorage.setItem('breduck-admin', '1');
-      loginErr.classList.remove('show');
-      showLogged();
+      closeLogin();
+      openPanel();
     } else {
-      loginErr.classList.add('show');
-      pwInput.value = ''; pwInput.focus();
-      pwInput.style.borderColor = '#e74c3c';
-      setTimeout(() => { pwInput.style.borderColor = ''; }, 800);
+      errMsg.textContent = 'Incorrect password.';
+      pwInput.classList.remove('shake');
+      void pwInput.offsetWidth;
+      pwInput.classList.add('shake');
+      pwInput.value = '';
+      setTimeout(() => pwInput.classList.remove('shake'), 400);
     }
   }
-  loginBtn.addEventListener('click', tryLogin);
+
+  loginClose.addEventListener('click', closeLogin);
+  loginOverlay.addEventListener('click', e => { if (e.target === loginOverlay) closeLogin(); });
+  enterBtn.addEventListener('click', tryLogin);
   pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
-  logoutBtn.addEventListener('click', () => { sessionStorage.removeItem('breduck-admin'); showLogin(); });
+  panelClose.addEventListener('click', closePanel);
+  panelOverlay.addEventListener('click', e => { if (e.target === panelOverlay) closePanel(); });
+  logoutBtn.addEventListener('click', () => { sessionStorage.removeItem('breduck-admin'); closePanel(); });
 
-  // ── SUPABASE popup helpers ──
-  async function setPopupDB(msg) {
-    const res = await fetch(SUPABASE_URL + '/rest/v1/' + POPUP_TABLE, {
-      method: 'POST',
-      headers: Object.assign({}, HEADERS, { 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
-      body: JSON.stringify({ id: 1, message: msg, active: !!msg, updated_at: new Date().toISOString() })
-    });
-    if (!res.ok) throw new Error(await res.text());
-  }
-
-  // ── BROADCAST ──
-  broadcastBtn.addEventListener('click', async () => {
-    const msg = broadcastInput.value.trim();
-    if (!msg) { statusEl.textContent = 'Message is empty!'; statusEl.className = 'admin-status err'; return; }
-    broadcastBtn.disabled = true; statusEl.textContent = 'Sending…'; statusEl.className = 'admin-status';
-    try {
-      await setPopupDB(msg);
-      showBanner(msg);
-      statusEl.textContent = '✅ Broadcast sent!'; statusEl.className = 'admin-status ok';
-      broadcastInput.value = '';
-    } catch(e) { statusEl.textContent = '❌ ' + e.message; statusEl.className = 'admin-status err'; }
-    broadcastBtn.disabled = false;
-  });
-  broadcastInput.addEventListener('keydown', e => { if (e.key === 'Enter') broadcastBtn.click(); });
-
-  // ── CLEAR BANNER ──
-  clearBtn.addEventListener('click', async () => {
-    statusEl.textContent = 'Clearing…'; statusEl.className = 'admin-status';
-    try {
-      await setPopupDB('');
-      hideBanner();
-      statusEl.textContent = '✅ Cleared!'; statusEl.className = 'admin-status ok';
-    } catch(e) { statusEl.textContent = '❌ ' + e.message; statusEl.className = 'admin-status err'; }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (loginOverlay.classList.contains('open')) closeLogin();
+      if (panelOverlay.classList.contains('open')) closePanel();
+    }
   });
 
-  // ── BANNER DISPLAY ──
-  function showBanner(msg) {
-    bannerMsg.textContent = msg;
-    banner.classList.add('show');
-  }
-  function hideBanner() { banner.classList.remove('show'); }
-  bannerClose.addEventListener('click', hideBanner);
+  announceBtn.addEventListener('click', async () => {
+    const text = announceText.value.trim();
+    if (!text) return;
+    announceBtn.textContent = '📡 Sending…';
+    announceBtn.disabled = true;
+    try {
+      const res = await fetch(SB_URL + '/rest/v1/' + BD_TABLE, {
+        method: 'POST',
+        headers: Object.assign({}, SB_HEADERS, { 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({ message: text, created_at: new Date().toISOString() })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      closePanel();
+      announceText.value = '';
+      showBanner(text);
+    } catch (err) {
+      console.error('Broadcast failed:', err);
+    } finally {
+      announceBtn.textContent = '📢 Broadcast Now';
+      announceBtn.disabled = false;
+    }
+  });
 
-  // ── POLL Supabase every 15s — shows banner to ALL visitors ──
-  let lastBannerMsg = '';
-  async function checkBanner() {
+  // Polling — all visitors check every 4 seconds
+  let lastSeenId = null, pollInitialized = false;
+  async function pollAnnouncements() {
     try {
       const res = await fetch(
-        SUPABASE_URL + '/rest/v1/' + POPUP_TABLE + '?id=eq.1&select=message,active',
-        { headers: HEADERS }
+        SB_URL + '/rest/v1/' + BD_TABLE + '?select=id,message,created_at&order=created_at.desc&limit=1',
+        { headers: SB_HEADERS }
       );
       if (!res.ok) return;
-      const data = await res.json();
-      const row = data[0];
-      if (row && row.active && row.message && row.message !== lastBannerMsg) {
-        lastBannerMsg = row.message;
-        showBanner(row.message);
-      } else if (!row || !row.active) {
-        lastBannerMsg = '';
-        hideBanner();
+      const rows = await res.json();
+      if (!rows.length) { pollInitialized = true; return; }
+      const latest = rows[0];
+      if (!pollInitialized) { lastSeenId = latest.id; pollInitialized = true; return; }
+      if (latest.id !== lastSeenId) {
+        const age = Date.now() - new Date(latest.created_at).getTime();
+        lastSeenId = latest.id;
+        if (age < 15000) showBanner(latest.message);
       }
-    } catch(e) {}
+    } catch (e) {}
   }
-  checkBanner();
-  setInterval(checkBanner, 15000);
+  pollAnnouncements();
+  setInterval(pollAnnouncements, 4000);
+
+  function showBanner(text) {
+    clearTimeout(bannerTimer);
+    const oldBar = document.getElementById('bdBannerBar');
+    const newBar = oldBar.cloneNode();
+    oldBar.parentNode.replaceChild(newBar, oldBar);
+    bannerMsgEl.textContent = text;
+    bannerBackdrop.classList.add('show');
+    bannerWrap.classList.add('show');
+    bannerTimer = setTimeout(hideBanner, BANNER_MS);
+  }
+  function hideBanner() { bannerWrap.classList.remove('show'); bannerBackdrop.classList.remove('show'); }
+  bannerBackdrop.addEventListener('click', () => { clearTimeout(bannerTimer); hideBanner(); });
+  bannerClose.addEventListener('click', () => { clearTimeout(bannerTimer); hideBanner(); });
+
+  // Show delete buttons when admin is logged in
+  setInterval(() => {
+    const isAdmin = sessionStorage.getItem('breduck-admin') === '1';
+    document.querySelectorAll('.anon-delete-btn').forEach(b => { b.style.display = isAdmin ? 'flex' : 'none'; });
+  }, 1000);
 })();
 </script>
 </body>
