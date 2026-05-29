@@ -2244,9 +2244,11 @@ loadVideos();
   const OR_KEY   = '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';
   const OR_MODELS = [
     'meta-llama/llama-3.3-70b-instruct:free',
-    'deepseek/deepseek-chat-v3-0324:free',
     'meta-llama/llama-4-maverick:free',
-    'qwen/qwen3-235b-a22b:free'
+    'deepseek/deepseek-r1:free',
+    'qwen/qwen3-235b-a22b:free',
+    'nvidia/llama-3.1-nemotron-70b-instruct:free',
+    'mistralai/mistral-7b-instruct:free'
   ];
   let OR_MODEL_IDX = 0;
   function getModel() { return OR_MODELS[OR_MODEL_IDX % OR_MODELS.length]; }
@@ -2521,7 +2523,7 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
           })
         });
         data = await res.json();
-        if (data.error && (data.error.code === 503 || /provider|unavailable|overload/i.test(data.error.message || ''))) {
+        if (data.error && (data.error.code === 503 || data.error.code === 404 || /provider|unavailable|overload|no endpoints/i.test(data.error.message || ''))) {
           OR_MODEL_IDX++; attempts++; continue;
         }
         break;
