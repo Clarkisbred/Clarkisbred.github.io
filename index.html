@@ -2242,7 +2242,14 @@ loadVideos();
 <script>
 (function() {
   const OR_KEY   = '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';
-  const OR_MODEL = 'meta-llama/llama-3.3-70b-instruct:free';
+  const OR_MODELS = [
+    'meta-llama/llama-3.3-70b-instruct:free',
+    'deepseek/deepseek-chat-v3-0324:free',
+    'meta-llama/llama-4-maverick:free',
+    'qwen/qwen3-235b-a22b:free'
+  ];
+  let OR_MODEL_IDX = 0;
+  function getModel() { return OR_MODELS[OR_MODEL_IDX % OR_MODELS.length]; }
   const OR_URL   = 'https://openrouter.ai/api/v1/chat/completions';
 
   // Supabase — reuse existing project for chat logging
@@ -2493,26 +2500,32 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
     showTyping();
 
     try {
-      const res = await fetch(OR_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + OR_KEY,
-          'HTTP-Referer': location.origin,
-          'X-Title': 'BreDucky'
-        },
-        body: JSON.stringify({
-          model: OR_MODEL,
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT(userName || 'friend') },
-            ...history
-          ],
-          max_tokens: 700,
-          temperature: 0.88
-        })
-      });
-
-      const data = await res.json();
+      let data, attempts = 0;
+      while (attempts < OR_MODELS.length) {
+        const res = await fetch(OR_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + OR_KEY,
+            'HTTP-Referer': location.origin,
+            'X-Title': 'BreDucky'
+          },
+          body: JSON.stringify({
+            model: getModel(),
+            messages: [
+              { role: 'system', content: SYSTEM_PROMPT(userName || 'friend') },
+              ...history
+            ],
+            max_tokens: 700,
+            temperature: 0.88
+          })
+        });
+        data = await res.json();
+        if (data.error && (data.error.code === 503 || /provider|unavailable|overload/i.test(data.error.message || ''))) {
+          OR_MODEL_IDX++; attempts++; continue;
+        }
+        break;
+      }
       removeTyping();
 
       if (data.error) {
