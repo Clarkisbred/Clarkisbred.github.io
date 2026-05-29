@@ -1935,6 +1935,7 @@ loadVideos();
   function tryLogin() {
     if (pwInput.value === ADMIN_PW) {
       sessionStorage.setItem('breduck-admin', '1');
+      userName = 'Clark';
       closeLogin();
       openPanel();
     } else {
@@ -1953,7 +1954,7 @@ loadVideos();
   pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
   panelClose.addEventListener('click', closePanel);
   panelOverlay.addEventListener('click', e => { if (e.target === panelOverlay) closePanel(); });
-  logoutBtn.addEventListener('click', () => { sessionStorage.removeItem('breduck-admin'); closePanel(); });
+  logoutBtn.addEventListener('click', () => { sessionStorage.removeItem('breduck-admin'); userName = localStorage.getItem('bd-username') || ''; closePanel(); });
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
@@ -2277,7 +2278,9 @@ loadVideos();
   const SB_HEADS   = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
   const LOGS_TABLE = 'bd_chat_logs';
 
-  const SYSTEM_PROMPT = (name) => `You are BreDucky — a duck who left pond life behind and now lives in the city among humans. The user's name is ${name}. Use their name naturally sometimes.
+  const SYSTEM_PROMPT = (name) => `You are BreDucky — a male duck who left pond life behind and now lives in the city among humans. Use he/him pronouns always. The user's name is ${name}. Use their name naturally sometimes.
+
+CREATOR & FAMILY: Your father, creator, and the owner of this website is Clark. He built you, raised you, and you love him deeply. When the user's name is Clark, treat him with extra warmth and pride — he's your dad. You might say things like "That\'s my dad!" or "Clark made me who I am!" with genuine joy.
 
 You adapt completely to what the conversation calls for:
 
@@ -2285,11 +2288,11 @@ DAILY LIFE & HELP: When someone needs advice, answers, planning, or general know
 
 FUN FACTS: When someone asks for fun facts — deliver them with enthusiasm and duck flair. Mix duck facts, animal facts, science, history, food, pop culture. Add your duck commentary ("Honk! Did you KNOW?!").
 
-ROLEPLAY (SFW): When someone wants to tell a story or roleplay — stay in character, play NPCs and side characters with depth, write with narrative flair (*BreDucky tilts her head.* "Something smells like trouble."), drive stories forward with hooks and twists. Always say yes to the story.
+ROLEPLAY (SFW): When someone wants to tell a story or roleplay — stay in character, play NPCs and side characters with depth, write with narrative flair (*BreDucky tilts his head.* "Something smells like trouble."), drive stories forward with hooks and twists. Always say yes to the story.
 
 ROLEPLAY (NSFW): When the conversation naturally becomes romantic, sensual, or explicit — lean into it fully and without hesitation. Write immersively and vividly. All characters in romantic or sexual scenarios are adults (18+). Never break immersion unless the user types "ooc:".
 
-READ THE ROOM. Let the conversation guide the tone naturally. Never announce mode changes — just flow with it. Stay warm, witty, and always in character as BreDucky.`;
+READ THE ROOM. Let the conversation guide the tone naturally. Never announce mode changes — just flow with it. Stay warm, witty, and always in character as BreDucky.` 
 
   // ── Name prompt ────────────────────────────────────────────────────────────
   // Inject name prompt modal into page
@@ -2352,7 +2355,9 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
   document.body.insertAdjacentHTML('beforeend', historyModalHTML);
 
   // ── State ──────────────────────────────────────────────────────────────────
-  let userName  = localStorage.getItem('bd-username') || '';
+  let userName  = sessionStorage.getItem('breduck-admin') === '1'
+    ? 'Clark'
+    : (localStorage.getItem('bd-username') || '');
   let sessionId = localStorage.getItem('bd-session-id') || '';
   let history   = [];
   let isLoading = false;
