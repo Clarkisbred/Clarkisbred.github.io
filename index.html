@@ -2241,18 +2241,16 @@ loadVideos();
 
 <script>
 (function() {
-  const OR_KEY   = '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';
+  const OR_KEY   = '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';
   const OR_MODELS = [
-    'meta-llama/llama-3.3-70b-instruct:free',
-    'meta-llama/llama-4-maverick:free',
-    'deepseek/deepseek-r1:free',
-    'qwen/qwen3-235b-a22b:free',
-    'nvidia/llama-3.1-nemotron-70b-instruct:free',
-    'mistralai/mistral-7b-instruct:free'
+    'llama-3.3-70b-versatile',
+    'llama-3.1-70b-versatile',
+    'llama3-70b-8192',
+    'mixtral-8x7b-32768'
   ];
   let OR_MODEL_IDX = 0;
   function getModel() { return OR_MODELS[OR_MODEL_IDX % OR_MODELS.length]; }
-  const OR_URL   = 'https://openrouter.ai/api/v1/chat/completions';
+  const OR_URL   = 'https://api.groq.com/openai/v1/chat/completions';
 
   // Supabase — reuse existing project for chat logging
   const SB_URL     = 'https://shnbutvfutvfhakpbvbn.supabase.co';
@@ -2497,6 +2495,13 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
     input.value = '';
     input.style.height = 'auto';
 
+    const rate = checkRateLimit();
+    if (!rate.allowed) {
+      isLoading = false; sendBtn.disabled = false;
+      appendMessage('assistant', 'Honk— you’ve hit your 20 daily messages! Come back tomorrow.');
+      return;
+    }
+
     appendMessage('user', text);
     history.push({ role: 'user', content: text });
     showTyping();
@@ -2508,9 +2513,7 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + OR_KEY,
-            'HTTP-Referer': location.origin,
-            'X-Title': 'BreDucky'
+            'Authorization': 'Bearer ' + OR_KEY
           },
           body: JSON.stringify({
             model: getModel(),
@@ -2531,7 +2534,7 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
       removeTyping();
 
       if (data.error) {
-        console.error('OpenRouter error:', data.error);
+        console.error('Groq error:', data.error);
         appendMessage('assistant', 'Honk— ran into a snag: ' + (data.error.message || 'unknown error'));
       } else {
         const reply = data.choices?.[0]?.message?.content?.trim()
@@ -2539,6 +2542,7 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
         history.push({ role: 'assistant', content: reply });
         appendMessage('assistant', reply);
         saveLog(text, reply);
+        incrementRate();
         if (!isOpen) unread.classList.add('show');
       }
     } catch(e) {
