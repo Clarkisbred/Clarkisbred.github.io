@@ -2138,6 +2138,7 @@ loadVideos();
   background: var(--yellow); color: #111; border-color: var(--yellow);
 }
 .bd-msg-bubble.typing { padding: 0.7rem 1rem; }
+@keyframes bdBlink { 0%,100%{opacity:0.7} 50%{opacity:0} }
 .bd-typing-dots { display: flex; gap: 4px; align-items: center; }
 .bd-typing-dots span {
   width: 6px; height: 6px; border-radius: 50%; background: var(--text3);
@@ -2147,6 +2148,54 @@ loadVideos();
 .bd-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes bd-dot-bounce { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-6px);} }
 
+.bd-session-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  flex: 1;
+}
+.bd-session-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--text);
+  margin-bottom: 0.2rem;
+}
+.bd-session-sub {
+  font-size: 0.72rem;
+  color: var(--text3);
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+.bd-session-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 220px;
+}
+.bd-session-btn {
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.bd-session-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+.bd-session-btn.continue {
+  background: var(--yellow, #F5C842);
+  color: #333;
+}
+.bd-session-btn.newchat {
+  background: transparent;
+  border: 1.5px solid var(--yellow, #F5C842);
+  color: var(--text);
+}
 .bd-chat-intro {
   text-align: center; padding: 1rem 0.5rem 0.5rem;
 }
@@ -2219,6 +2268,15 @@ loadVideos();
     <button class="bd-chat-header-close" id="bdChatClose">✕</button>
   </div>
   <div class="bd-chat-messages" id="bdChatMessages">
+    <div class="bd-session-picker" id="bdSessionPicker" style="display:none;">
+      <div class="bd-chat-intro-duck">🦆</div>
+      <div class="bd-session-title">Welcome back!</div>
+      <div class="bd-session-sub">Want to pick up where you left off,<br>or start fresh?</div>
+      <div class="bd-session-btns">
+        <button class="bd-session-btn continue" id="bdContinueChat">💬 Continue Chat</button>
+        <button class="bd-session-btn newchat" id="bdNewChat">✨ New Chat</button>
+      </div>
+    </div>
     <div class="bd-chat-intro" id="bdChatIntro">
       <div class="bd-chat-intro-duck">🦆</div>
       <div class="bd-chat-intro-name">Hey, I'm BreDucky</div>
@@ -2354,8 +2412,32 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
   let history   = [];
   let isLoading = false;
   let isOpen    = false;
+  const MAX_HISTORY = 20; // max messages remembered
 
   if (!sessionId) {
+    sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+    localStorage.setItem('bd-session-id', sessionId);
+  }
+
+  // Load saved history from localStorage (up to MAX_HISTORY messages)
+  function loadSavedHistory() {
+    try {
+      const raw = localStorage.getItem('bd-chat-history');
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.slice(-MAX_HISTORY) : [];
+    } catch { return []; }
+  }
+
+  function saveHistory() {
+    try {
+      localStorage.setItem('bd-chat-history', JSON.stringify(history.slice(-MAX_HISTORY)));
+    } catch {}
+  }
+
+  function clearHistory() {
+    history = [];
+    localStorage.removeItem('bd-chat-history');
     sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
     localStorage.setItem('bd-session-id', sessionId);
   }
@@ -2369,6 +2451,35 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
   const sendBtn  = document.getElementById('bdChatSend');
   const unread   = document.getElementById('bdChatUnread');
   const intro    = document.getElementById('bdChatIntro');
+
+  const sessionPicker = document.getElementById('bdSessionPicker');
+  const continueBtn   = document.getElementById('bdContinueChat');
+  const newChatBtn    = document.getElementById('bdNewChat');
+
+  // ── Session picker logic ───────────────────────────────────────────────────
+  function showSessionPicker() {
+    sessionPicker.style.display = 'flex';
+    intro.style.display = 'none';
+  }
+  function hideSessionPicker() {
+    sessionPicker.style.display = 'none';
+  }
+
+  continueBtn.addEventListener('click', () => {
+    // Load saved history and restore messages in UI
+    history = loadSavedHistory();
+    hideSessionPicker();
+    intro.style.display = 'none';
+    // Replay saved messages into the chat UI
+    history.forEach(m => appendMessage(m.role, m.content));
+  });
+
+  newChatBtn.addEventListener('click', () => {
+    clearHistory();
+    hideSessionPicker();
+    intro.style.display = '';
+    messages.innerHTML = '';
+  });
 
   // ── Profile pic ────────────────────────────────────────────────────────────
   function syncPfp() {
@@ -2415,6 +2526,11 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
     bubble.classList.add('open');
     unread.classList.remove('show');
     syncPfp();
+    // Show session picker if there's a saved conversation and chat is empty
+    const saved = loadSavedHistory();
+    if (saved.length > 0 && messages.children.length === 0) {
+      showSessionPicker();
+    }
     setTimeout(() => input.focus(), 300);
   }
   function closeChat() {
@@ -2464,6 +2580,40 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
     wrap.appendChild(bub);
     messages.appendChild(wrap);
     messages.scrollTop = messages.scrollHeight;
+  }
+
+  function typeMessage(text) {
+    if (intro) intro.style.display = 'none';
+    const wrap = document.createElement('div');
+    wrap.className = 'bd-msg assistant';
+    const pfpEl = document.createElement('div');
+    pfpEl.className = 'bd-msg-pfp';
+    const heroPfp = document.querySelector('.hero-profile img')?.src;
+    pfpEl.innerHTML = heroPfp ? `<img src="${heroPfp}" alt="BreDucky">` : '🦆';
+    const bub = document.createElement('div');
+    bub.className = 'bd-msg-bubble';
+    // cursor span for blinking effect
+    const cursor = document.createElement('span');
+    cursor.style.cssText = 'display:inline-block;width:2px;height:1em;background:currentColor;margin-left:1px;vertical-align:text-bottom;animation:bdBlink 0.7s step-end infinite;opacity:0.7;';
+    bub.appendChild(cursor);
+    wrap.appendChild(pfpEl);
+    wrap.appendChild(bub);
+    messages.appendChild(wrap);
+    messages.scrollTop = messages.scrollHeight;
+
+    let i = 0;
+    const chars = Array.from(text); // handle emoji/unicode properly
+    function tick() {
+      if (i < chars.length) {
+        // insert text before cursor
+        bub.insertBefore(document.createTextNode(chars[i++]), cursor);
+        messages.scrollTop = messages.scrollHeight;
+        setTimeout(tick, 16);
+      } else {
+        cursor.remove(); // remove cursor when done
+      }
+    }
+    setTimeout(tick, 60); // slight delay after typing indicator disappears
   }
 
   function showTyping() {
@@ -2549,7 +2699,8 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
         const reply = data.choices?.[0]?.message?.content?.trim()
           || 'Honk— sorry, got distracted by a pretzel cart. What were you saying?';
         history.push({ role: 'assistant', content: reply });
-        appendMessage('assistant', reply);
+        typeMessage(reply);
+        saveHistory();
         saveLog(text, reply);
         if (!isOpen) unread.classList.add('show');
       }
