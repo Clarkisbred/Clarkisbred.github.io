@@ -2526,10 +2526,12 @@ READ THE ROOM. Let the conversation guide the tone naturally. Never announce mod
     bubble.classList.add('open');
     unread.classList.remove('show');
     syncPfp();
-    // Show session picker if there's a saved conversation and chat is empty
-    const saved = loadSavedHistory();
-    if (saved.length > 0 && messages.children.length === 0) {
-      showSessionPicker();
+    // Show picker if there's saved history and no active convo loaded yet
+    if (history.length === 0) {
+      const saved = loadSavedHistory();
+      if (saved.length > 0) {
+        showSessionPicker();
+      }
     }
     setTimeout(() => input.focus(), 300);
   }
