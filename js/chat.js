@@ -83,22 +83,6 @@ You adapt completely to what the conversation calls for — daily help, fun fact
   </div>`;
   document.body.insertAdjacentHTML('beforeend', historyModalHTML);
 
-  // ── Takeover modal (Clark types as "BreDucky" to the user) ──────────────────
-  const takeoverHTML = `
-  <div id="bdTakeoverOverlay" style="position:fixed;inset:0;z-index:999997;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;">
-    <div style="background:var(--surface,#fff);border:2px solid var(--yellow,#F5C842);border-radius:16px;padding:1.8rem;width:420px;max-width:calc(100vw - 2rem);box-shadow:0 24px 64px rgba(245,200,66,0.3);transform:translateY(20px);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);" id="bdTakeoverModal">
-      <div style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;color:var(--text,#111);margin-bottom:0.3rem;">🦆 Clark Takeover Mode</div>
-      <div style="font-size:0.75rem;color:var(--text3,#888);margin-bottom:1.2rem;">You're now talking AS BreDucky. The user sees your message as BreDucky's reply.</div>
-      <div id="bdTakeoverStatus" style="font-size:0.72rem;color:var(--yellow-dark,#C49B10);margin-bottom:0.8rem;min-height:1.2em;"></div>
-      <textarea id="bdTakeoverInput" placeholder="Type what BreDucky should say…" maxlength="1000" rows="4" style="width:100%;background:var(--bg2,#f5f5f5);border:1px solid var(--border,#eee);border-radius:10px;padding:0.75rem 1rem;font-size:0.88rem;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text,#111);outline:none;resize:vertical;box-sizing:border-box;transition:border-color 0.2s;"></textarea>
-      <div style="display:flex;gap:0.6rem;margin-top:0.8rem;">
-        <button id="bdTakeoverSend" style="flex:1;background:var(--yellow,#F5C842);border:none;border-radius:10px;padding:0.7rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;cursor:pointer;transition:background 0.2s;">Send as BreDucky 🦆</button>
-        <button id="bdTakeoverClose" style="background:none;border:1px solid var(--border,#eee);border-radius:10px;padding:0.7rem 1rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;color:var(--text3,#888);cursor:pointer;">Exit</button>
-      </div>
-    </div>
-  </div>`;
-  document.body.insertAdjacentHTML('beforeend', takeoverHTML);
-
   // ── State ───────────────────────────────────────────────────────────────────
   let duckName  = sessionStorage.getItem('breduck-admin') === '1'
     ? 'Clark'
@@ -468,45 +452,6 @@ You adapt completely to what the conversation calls for — daily help, fun fact
     } catch(e) { logScroll.innerHTML = '<div style="text-align:center;padding:2rem;color:#e74c3c;">Failed to load messages.</div>'; }
   }
 
-  // ── Takeover mode: Clark types as BreDucky ──────────────────────────────────
-  const takeoverBackdrop = document.getElementById('bdTakeoverOverlay');
-  const takeoverModal    = document.getElementById('bdTakeoverModal');
-  const takeoverInput    = document.getElementById('bdTakeoverInput');
-  const takeoverSendBtn  = document.getElementById('bdTakeoverSend');
-  const takeoverCloseBtn = document.getElementById('bdTakeoverClose');
-  const takeoverStatus   = document.getElementById('bdTakeoverStatus');
-
-  window.bdOpenTakeover = function() {
-    takeoverBackdrop.style.opacity = '1'; takeoverBackdrop.style.pointerEvents = 'all';
-    takeoverModal.style.transform = 'translateY(0)';
-    // open chat window too so clark can see the convo
-    if (!nestOpen) openDuckChat();
-    setTimeout(() => takeoverInput.focus(), 300);
-  };
-  function closeTakeover() {
-    takeoverBackdrop.style.opacity = '0'; takeoverBackdrop.style.pointerEvents = 'none';
-    takeoverModal.style.transform = 'translateY(20px)';
-  }
-  takeoverCloseBtn.addEventListener('click', closeTakeover);
-  takeoverBackdrop.addEventListener('click', e => { if (e.target === takeoverBackdrop) closeTakeover(); });
-
-  takeoverSendBtn.addEventListener('click', async () => {
-    const text = takeoverInput.value.trim();
-    if (!text) return;
-    takeoverInput.value = '';
-    takeoverStatus.textContent = 'Sent as BreDucky ✓';
-    setTimeout(() => takeoverStatus.textContent = '', 2000);
-    // inject directly as BreDucky reply in the chat window
-    chatLog.push({ role: 'assistant', content: text });
-    stashFeathers();
-    // show in chat (opens it if not open)
-    if (!nestOpen) openDuckChat();
-    appendMessage('assistant', text);
-    // log it to supabase
-    await saveLog('[CLARK TAKEOVER]', text);
-  });
-  takeoverInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); takeoverSendBtn.click(); } });
-
   // ── Admin TTS / STT ─────────────────────────────────────────────────────────
   let mediaRecorder = null, audioChunks = [];
 
@@ -559,5 +504,14 @@ You adapt completely to what the conversation calls for — daily help, fun fact
 
   // expose for admin panel
   window.bdOpenDuckChat = openDuckChat;
+  window.bdCloseDuckChat = closeDuckChat;
   window.bdSetDuckName = (n) => { duckName = n; };
+  window.bdGetChatLog = () => chatLog;
+  window.bdInjectReply = function(text) {
+    chatLog.push({ role: 'assistant', content: text });
+    stashFeathers();
+    if (!nestOpen) openDuckChat();
+    appendMessage('assistant', text);
+    saveLog('[CLARK TAKEOVER]', text);
+  };
 })();

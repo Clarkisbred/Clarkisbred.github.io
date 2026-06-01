@@ -1102,3 +1102,194 @@ body.breduck-admin-active .bd-chat-mic { display: inline-flex !important; }
   80%{transform:translateX(4px);}
 }
 .shake { animation: shake 0.4s ease; }
+
+/* ── Shrimpy theme colors ────────────────────────────────────────────────────── */
+:root {
+  --shrimpy: #FF6B9D;
+  --shrimpy-dark: #C94E7A;
+  --shrimpy-pale: #FFF0F5;
+  --shrimpy-pale-dark: #1E0A10;
+}
+[data-theme="dark"] {
+  --shrimpy-pale: #1E0A10;
+}
+
+/* ── Bot switcher toggle on chat bubble ─────────────────────────────────────── */
+.bd-bot-switcher {
+  position: fixed; bottom: 5.4rem; right: 2rem; z-index: 88886;
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 999px; padding: 0.3rem 0.7rem 0.3rem 0.4rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  opacity: 0; pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 0.25s, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bd-bot-switcher.visible {
+  opacity: 1; pointer-events: all; transform: translateY(0);
+}
+.bd-bot-switch-label {
+  font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+  font-weight: 600; color: var(--text3); margin-right: 0.1rem;
+}
+.bd-bot-toggle {
+  position: relative; width: 48px; height: 26px;
+  background: var(--yellow); border: none; border-radius: 999px;
+  cursor: pointer; padding: 0; transition: background 0.3s;
+  flex-shrink: 0;
+}
+.bd-bot-toggle.shrimpy-active { background: var(--shrimpy); }
+.bd-bot-toggle-ball {
+  position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  display: flex; align-items: center; justify-content: center; font-size: 10px; line-height: 1;
+}
+.bd-bot-toggle.shrimpy-active .bd-bot-toggle-ball { transform: translateX(22px); }
+.bd-bot-name-badge {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--text); transition: color 0.3s;
+}
+.bd-bot-name-badge.shrimpy { color: var(--shrimpy-dark); }
+
+/* ── Chat bubble Shrimpy mode ─────────────────────────────────────────────── */
+.bd-chat-bubble.shrimpy-mode {
+  background: var(--shrimpy);
+  box-shadow: 0 4px 20px rgba(255,107,157,0.5), 0 2px 8px rgba(0,0,0,0.15);
+  animation: bd-shrimpy-float 3s ease-in-out infinite;
+}
+@keyframes bd-shrimpy-float {
+  0%,100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-6px) rotate(2deg); }
+}
+.bd-chat-bubble.shrimpy-mode:hover {
+  box-shadow: 0 6px 28px rgba(255,107,157,0.65), 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* ── Chat header Shrimpy mode ─────────────────────────────────────────────── */
+.bd-chat-header.shrimpy-header { background: var(--shrimpy); }
+.bd-chat-header.shrimpy-header .bd-chat-header-name { color: #fff; }
+.bd-chat-header.shrimpy-header .bd-chat-header-status { color: rgba(255,255,255,0.75); }
+.bd-chat-header.shrimpy-header .bd-chat-header-close { background: rgba(255,255,255,0.2); color: #fff; }
+.bd-chat-header.shrimpy-header .bd-chat-header-close:hover { background: rgba(255,255,255,0.35); }
+
+/* Shrimpy user bubbles */
+.bd-chat-window.shrimpy-window .bd-msg.user .bd-msg-bubble {
+  background: var(--shrimpy); color: #fff; border-color: var(--shrimpy);
+}
+.bd-chat-window.shrimpy-window .bd-chat-input:focus { border-color: var(--shrimpy); }
+.bd-chat-window.shrimpy-window .bd-chat-send { background: var(--shrimpy); }
+.bd-chat-window.shrimpy-window .bd-chat-send:hover { background: var(--shrimpy-dark); }
+.bd-chat-window.shrimpy-window .bd-starter-btn:hover { border-color: var(--shrimpy); color: var(--text); }
+.bd-chat-window.shrimpy-window .bd-session-btn.continue { background: var(--shrimpy); color: #fff; }
+.bd-chat-window.shrimpy-window .bd-session-btn.newchat { border-color: var(--shrimpy); }
+
+/* Shrimpy intro */
+.bd-chat-intro-shrimp { font-size: 2.2rem; margin-bottom: 0.4rem; animation: bd-shrimpy-float 4s ease-in-out infinite; }
+
+/* ── Takeover mode: conversation viewer ──────────────────────────────────── */
+.bd-takeover-full {
+  display: flex; flex-direction: column;
+  width: 620px; max-width: calc(100vw - 2rem);
+  max-height: 80vh; background: var(--surface);
+  border: 2px solid var(--yellow); border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(245,200,66,0.25);
+  overflow: hidden;
+  transform: translateY(20px);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bd-takeover-header {
+  padding: 1rem 1.2rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.bd-takeover-header-title {
+  font-family: 'Fraunces', Georgia, serif; font-size: 1rem; color: var(--text);
+}
+.bd-takeover-header-sub {
+  font-size: 0.65rem; color: var(--text3); margin-top: 0.15rem;
+}
+.bd-takeover-tabs {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.bd-takeover-tab {
+  flex: 1; padding: 0.6rem 0.5rem; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600;
+  background: none; border: none; cursor: pointer; color: var(--text3);
+  transition: color 0.2s, background 0.2s; border-bottom: 2px solid transparent;
+}
+.bd-takeover-tab.active { color: var(--text); border-bottom-color: var(--yellow); }
+.bd-takeover-tab.shrimpy-tab.active { border-bottom-color: var(--shrimpy); color: var(--shrimpy-dark); }
+.bd-takeover-convo {
+  flex: 1; overflow-y: auto; padding: 0.85rem;
+  display: flex; flex-direction: column; gap: 0.6rem;
+  min-height: 200px; max-height: 300px;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  background: var(--bg);
+}
+.bd-takeover-convo::-webkit-scrollbar { width: 4px; }
+.bd-takeover-convo::-webkit-scrollbar-thumb { background: var(--border); }
+.bd-takeover-empty {
+  text-align: center; padding: 2.5rem 1rem;
+  color: var(--text3); font-size: 0.8rem; line-height: 1.6;
+}
+.bd-to-msg { display: flex; gap: 0.4rem; align-items: flex-end; }
+.bd-to-msg.user { flex-direction: row-reverse; }
+.bd-to-pfp {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; background: var(--yellow); overflow: hidden;
+}
+.bd-to-pfp.shrimpy-pfp { background: var(--shrimpy); }
+.bd-to-pfp img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bd-to-bubble {
+  max-width: 80%; padding: 0.45rem 0.75rem;
+  border-radius: 10px; font-size: 0.8rem; line-height: 1.5;
+  background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+  white-space: pre-wrap; word-break: break-word;
+}
+.bd-to-msg.user .bd-to-bubble { background: var(--yellow); color: #111; border-color: var(--yellow); }
+.bd-to-msg.user.shrimpy .bd-to-bubble { background: var(--shrimpy); color: #fff; border-color: var(--shrimpy); }
+.bd-takeover-input-area {
+  padding: 0.85rem; border-top: 1px solid var(--border); flex-shrink: 0;
+}
+.bd-takeover-send-row {
+  display: flex; gap: 0.5rem; margin-top: 0.6rem;
+}
+.bd-takeover-textarea {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.65rem 0.9rem;
+  font-size: 0.85rem; font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text); outline: none; resize: vertical;
+  box-sizing: border-box; transition: border-color 0.2s;
+  min-height: 68px;
+}
+.bd-takeover-textarea:focus { border-color: var(--yellow); }
+.bd-takeover-textarea.shrimpy-focus:focus { border-color: var(--shrimpy); }
+.bd-takeover-send-btn {
+  flex: 1; background: var(--yellow); border: none; border-radius: 10px;
+  padding: 0.65rem; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+  font-weight: 600; cursor: pointer; transition: background 0.2s;
+  white-space: nowrap;
+}
+.bd-takeover-send-btn:hover { background: var(--yellow-dark); color: #fff; }
+.bd-takeover-send-btn.shrimpy { background: var(--shrimpy); color: #fff; }
+.bd-takeover-send-btn.shrimpy:hover { background: var(--shrimpy-dark); }
+.bd-takeover-close-btn {
+  background: none; border: 1px solid var(--border); border-radius: 10px;
+  padding: 0.65rem 0.9rem; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.72rem; color: var(--text3); cursor: pointer;
+}
+.bd-takeover-status {
+  font-size: 0.68rem; color: var(--yellow-dark); min-height: 1em; margin-bottom: 0.4rem;
+}
+.bd-takeover-status.shrimpy { color: var(--shrimpy-dark); }
+
+@media (max-width: 480px) {
+  .bd-bot-switcher { right: 0.75rem; bottom: 4.8rem; }
+  .bd-takeover-full { width: calc(100vw - 1.5rem); }
+}

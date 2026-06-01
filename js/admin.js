@@ -145,7 +145,7 @@
     takeoverBtn.id = 'bdTakeoverBtn';
     takeoverBtn.className = 'admin-btn-primary';
     takeoverBtn.style.cssText = 'width:100%;justify-content:center;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.4rem;background:var(--yellow,#F5C842);color:#111;border:none;padding:0.65rem 1.2rem;font-family:inherit;font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;';
-    takeoverBtn.innerHTML = '🎭 Take Over as BreDucky';
+    takeoverBtn.innerHTML = '🎭 Takeover (BreDucky & Shrimpy)';
     takeoverBtn.addEventListener('click', () => { ditchAdminPanel(); if (window.bdOpenTakeover) window.bdOpenTakeover(); });
 
     // Mic button

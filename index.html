@@ -327,18 +327,26 @@
 </div>
 
 
-<!-- BreDucky Chat Widget -->
+<!-- Bot Switcher Toggle -->
+<div class="bd-bot-switcher" id="bdBotSwitcher">
+  <span class="bd-bot-switch-label">Chat with</span>
+  <button class="bd-bot-toggle" id="bdBotToggle" aria-label="Switch between BreDucky and Shrimpy">
+    <div class="bd-bot-toggle-ball">🦆</div>
+  </button>
+  <span class="bd-bot-name-badge" id="bdBotNameBadge">BreDucky</span>
+</div>
 
+<!-- BreDucky Chat Widget -->
 <button class="bd-chat-bubble" id="bdChatBubble" aria-label="Chat with BreDucky">
   🦆
   <div class="bd-chat-unread" id="bdChatUnread"></div>
 </button>
 
 <div class="bd-chat-window" id="bdChatWindow">
-  <div class="bd-chat-header">
+  <div class="bd-chat-header" id="bdChatHeader">
     <div class="bd-chat-header-pfp" id="bdChatHeaderPfp">🦆</div>
     <div class="bd-chat-header-info">
-      <div class="bd-chat-header-name">BreDucky</div>
+      <div class="bd-chat-header-name" id="bdChatHeaderName">BreDucky</div>
       <div class="bd-chat-header-status">
         <span class="bd-chat-status-dot"></span> Online
       </div>
@@ -377,11 +385,84 @@
   </div>
 </div>
 
+<!-- Shrimpy Chat Window -->
+<div class="bd-chat-window shrimpy-window" id="spChatWindow">
+  <div class="bd-chat-header shrimpy-header">
+    <div class="bd-chat-header-pfp"><img src="shrimpy.jpg" alt="Shrimpy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+    <div class="bd-chat-header-info">
+      <div class="bd-chat-header-name">Shrimpy</div>
+      <div class="bd-chat-header-status">
+        <span class="bd-chat-status-dot"></span> Online (ugh, fine)
+      </div>
+    </div>
+    <button class="bd-chat-header-close" id="spChatClose">✕</button>
+  </div>
+  <div class="bd-chat-messages" id="spChatMessages">
+    <div class="bd-session-picker" id="spSessionPicker" style="display:none;">
+      <div style="width:60px;height:60px;border-radius:50%;overflow:hidden;margin:0 auto;border:2px solid var(--shrimpy,#FF6B9D);"><img src="shrimpy.jpg" alt="Shrimpy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+      <div class="bd-session-title">Oh, you're back.</div>
+      <div class="bd-session-sub">Finally. Continue or start over.<br>Doesn't matter to me.</div>
+      <div class="bd-session-btns">
+        <button class="bd-session-btn continue" id="spContinueChat">💬 Continue</button>
+        <button class="bd-session-btn newchat" id="spNewChat">✨ Start Over</button>
+      </div>
+    </div>
+    <div class="bd-chat-intro" id="spChatIntro">
+      <div style="width:60px;height:60px;border-radius:50%;overflow:hidden;margin:0 auto 0.4rem;animation:bd-shrimpy-float 4s ease-in-out infinite;border:2px solid var(--shrimpy,#FF6B9D);"><img src="shrimpy.jpg" alt="Shrimpy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+      <div class="bd-chat-intro-name">Ugh, hey. I'm Shrimpy.</div>
+      <div class="bd-chat-intro-desc">I guess I'll help you. Don't make it weird. I have standards, you know.</div>
+      <div class="bd-chat-starters">
+        <button class="bd-starter-btn" data-msg="Can you help me plan my day?">plan my day 📅</button>
+        <button class="bd-starter-btn" data-msg="Tell me a fun shrimp fact!">shrimp fact 🦐</button>
+        <button class="bd-starter-btn" data-msg="Tell me something weird and interesting.">weird fact 🤯</button>
+        <button class="bd-starter-btn" data-msg="What should I cook for dinner tonight?">dinner ideas 🍳</button>
+        <button class="bd-starter-btn" data-msg="I want to start a roleplay story with you.">start a story 🎭</button>
+      </div>
+    </div>
+  </div>
+  <div class="bd-chat-input-row">
+    <textarea class="bd-chat-input" id="spChatInput" placeholder="Talk to Shrimpy… if you dare." rows="1" maxlength="1000"></textarea>
+    <button class="bd-chat-send" id="spChatSend" aria-label="Send">
+      <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+    </button>
+  </div>
+</div>
+
+
+<!-- New Takeover Panel with conversation view -->
+<div id="bdTakeoverOverlay" style="position:fixed;inset:0;z-index:999997;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;">
+  <div class="bd-takeover-full" id="bdTakeoverModal">
+    <div class="bd-takeover-header">
+      <div>
+        <div class="bd-takeover-header-title">🎭 Clark Takeover Mode</div>
+        <div class="bd-takeover-header-sub">See the live convo — send messages as the bot.</div>
+      </div>
+      <button id="bdTakeoverExit" style="background:none;border:none;color:var(--text3);font-size:1rem;cursor:pointer;padding:0.25rem;">✕</button>
+    </div>
+    <div class="bd-takeover-tabs">
+      <button class="bd-takeover-tab active" id="bdToTabDuck" data-bot="duck">🦆 BreDucky</button>
+      <button class="bd-takeover-tab shrimpy-tab" id="bdToTabShrimp" data-bot="shrimp">🦐 Shrimpy</button>
+    </div>
+    <div class="bd-takeover-convo" id="bdToConvo">
+      <div class="bd-takeover-empty" id="bdToConvoEmpty">No messages yet. The conversation will appear here.</div>
+    </div>
+    <div class="bd-takeover-input-area">
+      <div class="bd-takeover-status" id="bdTakeoverStatus"></div>
+      <textarea class="bd-takeover-textarea" id="bdTakeoverInput" placeholder="Type what BreDucky should say…" maxlength="1000" rows="3"></textarea>
+      <div class="bd-takeover-send-row">
+        <button class="bd-takeover-send-btn" id="bdTakeoverSend">Send as BreDucky 🦆</button>
+        <button class="bd-takeover-close-btn" id="bdTakeoverClose">Exit</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- secrets loaded first -->
 <script src="config.js"></script>
 <script src="js/main.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/chat.js"></script>
+<script src="js/shrimpy.js"></script>
+<script src="js/botswitch.js"></script>
 </body>
 </html>
