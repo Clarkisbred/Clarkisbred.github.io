@@ -4,6 +4,6 @@
 window.BREDUCK_CONFIG = {
   SUPABASE_URL : 'https://shnbutvfutvfhakpbvbn.supabase.co',
   SUPABASE_KEY : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNobmJ1dHZmdXR2Zmhha3BidmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNjIzMjEsImV4cCI6MjA5MjkzODMyMX0.QZYmpeeGWa8F3YddlxbcKkmYwGrRjdQ5iNau6nJpuVQ',
-  GROQ_KEY     : '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',
+  GROQ_KEY     : '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',
   ADMIN_PW     : 'clarkson3?!',
 };

@@ -56,49 +56,12 @@
     switchBot();
   });
 
-  // ── Show switcher near the bubble ────────────────────────────────────────────
-  let switcherVisible = false;
-  let switcherTimer = null;
-
-  function showSwitcher() {
-    if (!switcher) return;
-    switcherVisible = true;
-    switcher.classList.add('visible');
-    clearTimeout(switcherTimer);
-    switcherTimer = setTimeout(hideSwitcher, 3500);
-  }
-  function hideSwitcher() {
-    switcherVisible = false;
-    switcher && switcher.classList.remove('visible');
-  }
-
-  // Show switcher on hover/long-press of bubble
+  // Switcher is now always visible in the chat header — no show/hide needed
   if (bubble) {
-    bubble.addEventListener('mouseenter', showSwitcher);
-    bubble.addEventListener('mouseleave', () => {
-      clearTimeout(switcherTimer);
-      switcherTimer = setTimeout(hideSwitcher, 1200);
-    });
-    // keep visible while hovering switcher
-    switcher && switcher.addEventListener('mouseenter', () => {
-      clearTimeout(switcherTimer);
-    });
-    switcher && switcher.addEventListener('mouseleave', () => {
-      switcherTimer = setTimeout(hideSwitcher, 800);
-    });
-
-    // On mobile: show on tap-hold
-    let touchTimer = null;
-    bubble.addEventListener('touchstart', () => {
-      touchTimer = setTimeout(showSwitcher, 500);
-    }, { passive: true });
-    bubble.addEventListener('touchend', () => clearTimeout(touchTimer), { passive: true });
 
     // Override bubble click to open correct bot
     bubble.addEventListener('click', e => {
       e.stopPropagation();
-      // if switcher is tapping, don't open chat
-      if (switcherVisible && e.target === toggle) return;
 
       const duckClosed = !duckWindow.classList.contains('open');
       const spClosed = !spWindow.classList.contains('open');
