@@ -908,8 +908,8 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
 }
 
 .bd-chat-header {
-  background: var(--yellow); padding: 0.9rem 1.1rem;
-  display: flex; align-items: center; gap: 0.75rem;
+  background: var(--yellow); padding: 0.75rem 0.9rem;
+  display: flex; align-items: center; gap: 0.5rem;
   flex-shrink: 0;
 }
 .bd-chat-header-pfp {
@@ -919,7 +919,7 @@ footer { border-top: 1px solid var(--footer-border); padding: 3rem; display: fle
   font-size: 1.3rem;
 }
 .bd-chat-header-pfp img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.bd-chat-header-info { flex: 1; }
+.bd-chat-header-info { flex: 1; min-width: 0; }
 .bd-chat-header-name {
   font-family: 'Fraunces', Georgia, serif; font-size: 1rem;
   color: #111; line-height: 1.1;
@@ -1116,11 +1116,11 @@ body.breduck-admin-active .bd-chat-mic { display: inline-flex !important; }
 
 /* ── Bot switcher toggle on chat bubble ─────────────────────────────────────── */
 .bd-bot-switcher {
-  display: flex; align-items: center; gap: 0.4rem;
-  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 999px; padding: 0.25rem 0.6rem 0.25rem 0.35rem;
+  display: flex; align-items: center; gap: 0.35rem;
+  background: rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 999px; padding: 0.2rem 0.5rem 0.2rem 0.3rem;
   opacity: 1; pointer-events: all; transform: none;
-  margin-left: auto; flex-shrink: 0;
+  flex-shrink: 0;
 }
 .bd-bot-switch-label {
   font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
@@ -1167,6 +1167,9 @@ body.breduck-admin-active .bd-chat-mic { display: inline-flex !important; }
 .bd-chat-header.shrimpy-header .bd-chat-header-status { color: rgba(255,255,255,0.75); }
 .bd-chat-header.shrimpy-header .bd-chat-header-close { background: rgba(255,255,255,0.2); color: #fff; }
 .bd-chat-header.shrimpy-header .bd-chat-header-close:hover { background: rgba(255,255,255,0.35); }
+.bd-chat-header.shrimpy-header .bd-bot-switcher { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.25); }
+.bd-chat-header.shrimpy-header .bd-bot-switch-label { color: rgba(255,255,255,0.8); }
+.bd-chat-header.shrimpy-header .bd-bot-name-badge { color: #fff; }
 
 /* Shrimpy user bubbles */
 .bd-chat-window.shrimpy-window .bd-msg.user .bd-msg-bubble {

@@ -1,6 +1,5 @@
 (function() {
   // ── Bot Switcher ─────────────────────────────────────────────────────────────
-  // Which bot is currently selected: 'duck' or 'shrimp'
   let activeBot = localStorage.getItem('bd-active-bot') || 'duck';
 
   const bubble     = document.getElementById('bdChatBubble');
@@ -10,6 +9,120 @@
   const nameBadge  = document.getElementById('bdBotNameBadge');
   const duckWindow = document.getElementById('bdChatWindow');
   const spWindow   = document.getElementById('spChatWindow');
+  const spToggle   = document.getElementById('spBotToggle');
+
+  // ── Hover popup above the floating bubble ──────────────────────────────────
+  // Inject the popup HTML once
+  const popup = document.createElement('div');
+  popup.id = 'bdBotHoverPopup';
+  popup.innerHTML = `
+    <button id="bdHoverDuck" class="bd-hover-bot-btn ${activeBot === 'duck' ? 'active' : ''}">
+      <span class="bd-hover-bot-emoji">🦆</span>
+      <span class="bd-hover-bot-label">BreDucky</span>
+    </button>
+    <button id="bdHoverShrimp" class="bd-hover-bot-btn ${activeBot === 'shrimp' ? 'active' : ''}">
+      <span class="bd-hover-bot-emoji"><img src="shrimpy.jpg" alt="Shrimpy" style="width:22px;height:22px;object-fit:cover;border-radius:50%;vertical-align:middle;"></span>
+      <span class="bd-hover-bot-label">Shrimpy</span>
+    </button>
+  `;
+  document.body.appendChild(popup);
+
+  // Inject styles
+  const style = document.createElement('style');
+  style.textContent = `
+    #bdBotHoverPopup {
+      position: fixed;
+      bottom: 90px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 999990;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    #bdBotHoverPopup.visible {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+    .bd-hover-bot-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface, #fff);
+      border: 1.5px solid var(--border, #e5e5e5);
+      border-radius: 999px;
+      padding: 7px 16px 7px 10px;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text, #111);
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .bd-hover-bot-btn:hover {
+      border-color: var(--yellow-dark, #d4a017);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.14);
+    }
+    .bd-hover-bot-btn.active {
+      background: var(--yellow, #F5C842);
+      border-color: var(--yellow-dark, #d4a017);
+      color: #111;
+    }
+    .bd-hover-bot-btn.active.shrimpy-btn {
+      background: var(--shrimpy, #FF6B9D);
+      border-color: #e0457a;
+      color: #fff;
+    }
+    .bd-hover-bot-emoji {
+      display: flex;
+      align-items: center;
+      font-size: 1.1rem;
+    }
+    @media (max-width: 480px) {
+      #bdBotHoverPopup {
+        bottom: 84px;
+        right: 16px;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  const hoverDuckBtn  = document.getElementById('bdHoverDuck');
+  const hoverShrimpBtn = document.getElementById('bdHoverShrimp');
+
+  // Add shrimpy class for active styling
+  hoverShrimpBtn && hoverShrimpBtn.classList.add('shrimpy-btn');
+
+  let popupHideTimer = null;
+
+  function showPopup() {
+    clearTimeout(popupHideTimer);
+    popup.classList.add('visible');
+  }
+
+  function scheduleHidePopup() {
+    clearTimeout(popupHideTimer);
+    popupHideTimer = setTimeout(() => popup.classList.remove('visible'), 300);
+  }
+
+  // Show on hover over bubble OR popup itself
+  bubble && bubble.addEventListener('mouseenter', showPopup);
+  bubble && bubble.addEventListener('mouseleave', scheduleHidePopup);
+  popup.addEventListener('mouseenter', showPopup);
+  popup.addEventListener('mouseleave', scheduleHidePopup);
+
+  // Touch: show popup on long-press or tap when chat is closed (mobile)
+  let touchTimer = null;
+  bubble && bubble.addEventListener('touchstart', () => {
+    touchTimer = setTimeout(showPopup, 400);
+  }, { passive: true });
+  bubble && bubble.addEventListener('touchend', () => clearTimeout(touchTimer), { passive: true });
 
   function applyBotUI() {
     if (!bubble) return;
@@ -30,6 +143,9 @@
       nameBadge && (nameBadge.textContent = 'BreDucky');
       nameBadge && nameBadge.classList.remove('shrimpy');
     }
+    // Update hover popup active states
+    hoverDuckBtn && hoverDuckBtn.classList.toggle('active', activeBot === 'duck');
+    hoverShrimpBtn && hoverShrimpBtn.classList.toggle('active', activeBot === 'shrimp');
   }
 
   function createUnreadPip() {
@@ -42,53 +158,90 @@
     return pip;
   }
 
-  function switchBot() {
-    // close both windows first
+  // ── Core switch: set bot, update UI, open window ───────────────────────────
+  function activateBot(bot) {
+    if (bot === activeBot) {
+      // Already this bot — just open its window
+      openBotWindow(bot);
+      return;
+    }
+    // Close both windows
     duckWindow && duckWindow.classList.remove('open');
     spWindow && spWindow.classList.remove('open');
-    activeBot = activeBot === 'duck' ? 'shrimp' : 'duck';
+    activeBot = bot;
     localStorage.setItem('bd-active-bot', activeBot);
     applyBotUI();
+    popup.classList.remove('visible');
+    setTimeout(() => openBotWindow(bot), 50);
   }
 
+  function openBotWindow(bot) {
+    if (bot === 'shrimp') {
+      window.spOpen && window.spOpen();
+    } else {
+      // Must handle the name-prompt the same way the bubble click does
+      const duckName = localStorage.getItem('bd-username') ||
+                       (sessionStorage.getItem('breduck-admin') === '1' ? 'Clark' : null);
+      if (!duckName && window.bdAskDuckName) {
+        window.bdAskDuckName();
+      } else {
+        window.bdOpenDuckChat && window.bdOpenDuckChat();
+      }
+    }
+  }
+
+  function switchBot() {
+    activateBot(activeBot === 'duck' ? 'shrimp' : 'duck');
+  }
+
+  // Hover popup buttons
+  hoverDuckBtn && hoverDuckBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    activateBot('duck');
+  });
+  hoverShrimpBtn && hoverShrimpBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    activateBot('shrimp');
+  });
+
+  // Keep existing in-header toggle working too
   toggle && toggle.addEventListener('click', e => {
     e.stopPropagation();
     switchBot();
   });
+  spToggle && spToggle.addEventListener('click', e => {
+    e.stopPropagation();
+    switchBot();
+  });
 
-  // Switcher is now always visible in the chat header — no show/hide needed
+  // ── Bubble click: open correct bot window ──────────────────────────────────
   if (bubble) {
-
-    // Override bubble click to open correct bot
     bubble.addEventListener('click', e => {
       e.stopPropagation();
 
-      const duckClosed = !duckWindow.classList.contains('open');
-      const spClosed = !spWindow.classList.contains('open');
+      const duckOpen = duckWindow && duckWindow.classList.contains('open');
+      const spOpen   = spWindow && spWindow.classList.contains('open');
 
       if (activeBot === 'shrimp') {
-        if (spClosed) {
-          // close duck if open
-          duckWindow.classList.remove('open');
+        if (!spOpen) {
+          duckWindow && duckWindow.classList.remove('open');
           window.spOpen && window.spOpen();
         } else {
           window.spClose && window.spClose();
         }
       } else {
-        if (duckClosed) {
-          spWindow.classList.remove('open');
-          // trigger duck open via existing bdOpenDuckChat
-          window.bdOpenDuckChat && window.bdOpenDuckChat();
-          // if no name yet, the duck handles the name modal
+        if (!duckOpen) {
+          spWindow && spWindow.classList.remove('open');
+          openBotWindow('duck');
         } else {
           duckWindow.classList.remove('open');
           window.bdCloseDuckChat && window.bdCloseDuckChat();
         }
       }
-    }, true); // capture phase to override duck's listener
+    }, true); // capture phase
   }
 
-  // ── New Takeover Panel ────────────────────────────────────────────────────────
+  // ── Takeover Panel ──────────────────────────────────────────────────────────
   const toOverlay   = document.getElementById('bdTakeoverOverlay');
   const toModal     = document.getElementById('bdTakeoverModal');
   const toConvo     = document.getElementById('bdToConvo');
@@ -100,7 +253,7 @@
   const toTabDuck   = document.getElementById('bdToTabDuck');
   const toTabShrimp = document.getElementById('bdToTabShrimp');
 
-  let toActiveBot = 'duck'; // which bot the takeover panel is targeting
+  let toActiveBot = 'duck';
 
   function openTakeover() {
     if (!toOverlay) return;
@@ -116,12 +269,10 @@
     toModal && (toModal.style.transform = 'translateY(20px)');
   }
 
-  // Build convo view from current bot's log
   function renderToConvo() {
     if (!toConvo) return;
     let log = [];
     if (toActiveBot === 'duck') {
-      // get BreDucky's log from chat.js exposed global
       log = window.bdGetChatLog ? window.bdGetChatLog() : [];
     } else {
       log = window.spGetLog ? window.spGetLog() : [];
@@ -159,7 +310,6 @@
     toConvo.scrollTop = toConvo.scrollHeight;
   }
 
-  // Tab switching
   function setToTab(bot) {
     toActiveBot = bot;
     if (bot === 'duck') {
@@ -185,14 +335,12 @@
   toTabDuck && toTabDuck.addEventListener('click', () => setToTab('duck'));
   toTabShrimp && toTabShrimp.addEventListener('click', () => setToTab('shrimp'));
 
-  // Send takeover message
   toSendBtn && toSendBtn.addEventListener('click', () => {
     const text = toInput.value.trim();
     if (!text) return;
     toInput.value = '';
 
     if (toActiveBot === 'duck') {
-      // inject into BreDucky chat
       window.bdInjectReply && window.bdInjectReply(text);
     } else {
       window.spInjectReply && window.spInjectReply(text);
@@ -203,7 +351,6 @@
       setTimeout(() => { toStatus.textContent = ''; }, 2000);
     }
 
-    // refresh convo view
     setTimeout(renderToConvo, 100);
   });
 
@@ -214,7 +361,6 @@
   toExitBtn && toExitBtn.addEventListener('click', closeTakeover);
   toOverlay && toOverlay.addEventListener('click', e => { if (e.target === toOverlay) closeTakeover(); });
 
-  // Auto-refresh convo while panel is open
   let toRefreshInterval = null;
   const toObserver = new MutationObserver(() => {
     if (toOverlay && toOverlay.style.opacity === '1') {
@@ -226,9 +372,9 @@
   toOverlay && toObserver.observe(toOverlay, { attributes: true, attributeFilter: ['style'] });
 
   // ── Expose globals ──────────────────────────────────────────────────────────
-  window.bdOpenTakeover = openTakeover;
+  window.bdOpenTakeover  = openTakeover;
   window.bdCloseTakeover = closeTakeover;
-  window.getActiveBot = () => activeBot;
+  window.getActiveBot    = () => activeBot;
 
   // Apply initial UI
   applyBotUI();

@@ -504,6 +504,7 @@ You adapt completely to what the conversation calls for — daily help, fun fact
 
   // expose for admin panel
   window.bdOpenDuckChat = openDuckChat;
+  window.bdAskDuckName = askDuckName;
   window.bdCloseDuckChat = closeDuckChat;
   window.bdSetDuckName = (n) => { duckName = n; };
   window.bdGetChatLog = () => chatLog;
