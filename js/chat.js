@@ -15,7 +15,7 @@
   const CHAT_HEADS = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
   const CHAT_LOG_TABLE = 'bd_chat_logs';
 
-  // ── System prompt ─────────────────────────────────────────────────────────────────────────────
+  // ── System prompt ───────────────────────────────────────────────────────────
   const SYSTEM_PROMPT = (name, isAdmin, pastCtx) => `You are BreDucky — a male duck who left pond life behind and now lives in the city among humans. Use he/him pronouns always. The user's name is ${name}. Use their name naturally sometimes.
 
 CREATOR: Your creator and owner of this website is Clark Hil — a Filipino. ${isAdmin ? `The person you are talking to RIGHT NOW is Clark, your creator. Treat him with deep love, pride, and excitement. Call him Dad or Clark.` : `If someone says their name is Clark, treat them warmly but as a regular user — do NOT call them dad or treat them as your creator unless verified through admin.`}
@@ -390,7 +390,7 @@ You adapt completely to what the conversation calls for — daily help, fun fact
         if (!nestOpen) unreadPip.classList.add('show');
         if (shouldSwitchToShrimpy) {
           setTimeout(() => {
-            duckWindow && duckWindow.classList.remove('open');
+            if (window.bdCloseDuckChat) window.bdCloseDuckChat();
             if (window.activateBot) window.activateBot('shrimp');
             else if (window.spOpen) window.spOpen();
           }, 1800);
@@ -406,136 +406,7 @@ You adapt completely to what the conversation calls for — daily help, fun fact
     }
   }
 
-  // ── Admin: Spy Chat History viewer (BreDucky=yellow, Shrimpy=pink) ──────────
-  const spyModalHTML = `
-  <div id="bdSpyOverlay" style="position:fixed;inset:0;z-index:999997;background:rgba(0,0,0,0.65);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;">
-    <div style="background:var(--surface,#fff);border:1px solid var(--border,#eee);border-radius:18px;width:540px;max-width:calc(100vw - 2rem);max-height:85vh;display:flex;flex-direction:column;box-shadow:0 24px 72px rgba(0,0,0,0.35);transform:translateY(20px);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);" id="bdSpyModal">
-      <div style="padding:1.2rem 1.4rem;border-bottom:1px solid var(--border,#eee);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-        <div style="display:flex;align-items:center;gap:0.6rem;">
-          <span style="font-size:1.1rem;">🕵️</span>
-          <div style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;color:var(--text,#111);">Spy Chat History</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:0.8rem;">
-          <div style="display:flex;gap:0.5rem;" id="bdSpyFilterBar">
-            <button id="bdSpyFilterAll" data-filter="all" style="font-size:0.65rem;font-family:inherit;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:0.3rem 0.7rem;border-radius:20px;border:1.5px solid #F5C842;background:#F5C842;color:#111;cursor:pointer;">All</button>
-            <button id="bdSpyFilterDuck" data-filter="breducky" style="font-size:0.65rem;font-family:inherit;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:0.3rem 0.7rem;border-radius:20px;border:1.5px solid var(--border,#eee);background:transparent;color:var(--text3,#888);cursor:pointer;">🦆 BreDucky</button>
-            <button id="bdSpyFilterShrimp" data-filter="shrimpy" style="font-size:0.65rem;font-family:inherit;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:0.3rem 0.7rem;border-radius:20px;border:1.5px solid var(--border,#eee);background:transparent;color:var(--text3,#888);cursor:pointer;">🦐 Shrimpy</button>
-          </div>
-          <button id="bdSpyClose" style="background:none;border:none;color:var(--text3,#888);font-size:1rem;cursor:pointer;">✕</button>
-        </div>
-      </div>
-      <div style="padding:0.5rem 1.4rem 0;font-size:0.68rem;color:var(--text3,#888);display:flex;gap:1rem;flex-shrink:0;">
-        <span>🟡 <strong style="color:#C49B10;">Yellow</strong> = BreDucky conversation</span>
-        <span>🩷 <strong style="color:#d4608a;">Pink</strong> = Shrimpy conversation</span>
-      </div>
-      <div id="bdSpyBody" style="flex:1;overflow-y:auto;padding:1rem 1.4rem;">
-        <div style="text-align:center;padding:2rem 0;color:var(--text3,#888);font-size:0.85rem;">Loading…</div>
-      </div>
-    </div>
-  </div>`;
-  document.body.insertAdjacentHTML('beforeend', spyModalHTML);
-
-  const spyBackdrop = document.getElementById('bdSpyOverlay');
-  const spyModal    = document.getElementById('bdSpyModal');
-  const spyBody     = document.getElementById('bdSpyBody');
-  const spyClose    = document.getElementById('bdSpyClose');
-
-  spyClose.addEventListener('click', () => { spyBackdrop.style.opacity='0'; spyBackdrop.style.pointerEvents='none'; spyModal.style.transform='translateY(20px)'; });
-  spyBackdrop.addEventListener('click', e => { if (e.target === spyBackdrop) { spyBackdrop.style.opacity='0'; spyBackdrop.style.pointerEvents='none'; spyModal.style.transform='translateY(20px)'; } });
-
-  // Filter buttons
-  let spyActiveFilter = 'all';
-  let spyAllSessions = [];
-  document.getElementById('bdSpyFilterBar').addEventListener('click', e => {
-    const btn = e.target.closest('button[data-filter]');
-    if (!btn) return;
-    spyActiveFilter = btn.dataset.filter;
-    document.querySelectorAll('#bdSpyFilterBar button').forEach(b => {
-      const isActive = b.dataset.filter === spyActiveFilter;
-      if (b.dataset.filter === 'breducky') { b.style.background = isActive ? '#F5C842' : 'transparent'; b.style.borderColor = isActive ? '#F5C842' : 'var(--border,#eee)'; b.style.color = isActive ? '#111' : 'var(--text3,#888)'; }
-      else if (b.dataset.filter === 'shrimpy') { b.style.background = isActive ? '#FFB6D9' : 'transparent'; b.style.borderColor = isActive ? '#FFB6D9' : 'var(--border,#eee)'; b.style.color = isActive ? '#111' : 'var(--text3,#888)'; }
-      else { b.style.background = isActive ? '#F5C842' : 'transparent'; b.style.borderColor = isActive ? '#F5C842' : 'var(--border,#eee)'; b.style.color = isActive ? '#111' : 'var(--text3,#888)'; }
-    });
-    renderSpySessions(spyAllSessions);
-  });
-
-  function renderSpySessions(sessions) {
-    spyBody.innerHTML = '';
-    const filtered = spyActiveFilter === 'all' ? sessions : sessions.filter(s => (spyActiveFilter === 'shrimpy' ? s.bot_id === 'shrimpy' : s.bot_id !== 'shrimpy'));
-    if (!filtered.length) { spyBody.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);">No conversations found.</div>'; return; }
-    filtered.forEach(s => {
-      const isShrimpy = s.bot_id === 'shrimpy';
-      const accentColor = isShrimpy ? '#FFB6D9' : '#F5C842';
-      const darkAccent  = isShrimpy ? '#d4608a'  : '#C49B10';
-      const botIcon     = isShrimpy ? '🦐' : '🦆';
-      const botName     = isShrimpy ? 'Shrimpy' : 'BreDucky';
-      const btn = document.createElement('button');
-      btn.style.cssText = `width:100%;text-align:left;background:var(--bg2,#f9f9f9);border:2px solid ${accentColor};border-radius:10px;padding:0.75rem 1rem;margin-bottom:0.55rem;cursor:pointer;font-family:inherit;font-size:0.85rem;color:var(--text,#111);display:flex;align-items:center;justify-content:space-between;transition:background 0.15s;`;
-      btn.innerHTML = `<div style="display:flex;align-items:center;gap:0.6rem;"><span style="font-size:1.1rem;">${botIcon}</span><div><div style="display:flex;align-items:center;gap:0.4rem;"><strong>${s.user_name || 'Anonymous'}</strong><span style="font-size:0.6rem;background:${accentColor};color:#111;padding:0.1rem 0.45rem;border-radius:20px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">${botName}</span></div><div style="font-size:0.68rem;color:var(--text3,#888);margin-top:0.15rem;">${new Date(s.created_at).toLocaleString()}</div></div></div><span style="color:${darkAccent};font-size:0.8rem;">View →</span>`;
-      btn.addEventListener('mouseenter', () => btn.style.background = `color-mix(in srgb, ${accentColor} 18%, white)`);
-      btn.addEventListener('mouseleave', () => btn.style.background = 'var(--bg2,#f9f9f9)');
-      btn.addEventListener('click', () => peekSpyNest(s.session_id, s.user_name, isShrimpy));
-      spyBody.appendChild(btn);
-    });
-  }
-
-  window.bdOpenSpyHistory = async function() {
-    spyBackdrop.style.opacity = '1'; spyBackdrop.style.pointerEvents = 'all';
-    spyModal.style.transform = 'translateY(0)';
-    spyBody.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);font-size:0.85rem;">Loading conversations…</div>';
-    try {
-      const res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?select=session_id,user_name,created_at,bot_id&order=created_at.desc', { headers: CHAT_HEADS });
-      const rows = await res.json();
-      if (!rows.length) { spyBody.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);">No conversations yet.</div>'; return; }
-      const seen = {};
-      spyAllSessions = [];
-      rows.forEach(r => {
-        const key = r.session_id;
-        if (!seen[key]) { seen[key] = true; spyAllSessions.push(r); }
-      });
-      renderSpySessions(spyAllSessions);
-    } catch(e) { spyBody.innerHTML = '<div style="text-align:center;padding:2rem;color:#e74c3c;">Failed to load. Check Supabase connection.</div>'; }
-  };
-
-  async function peekSpyNest(sid, name, isShrimpy) {
-    const accentColor = isShrimpy ? '#FFB6D9' : '#F5C842';
-    const darkAccent  = isShrimpy ? '#d4608a' : '#C49B10';
-    const botName     = isShrimpy ? 'Shrimpy' : 'BreDucky';
-    const botIcon     = isShrimpy ? '🦐' : '🦆';
-    spyBody.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);font-size:0.85rem;">Loading…</div>';
-    try {
-      const res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?session_id=eq.' + sid + '&order=created_at.asc', { headers: CHAT_HEADS });
-      const rows = await res.json();
-      spyBody.innerHTML = '';
-      const back = document.createElement('button');
-      back.style.cssText = 'font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3,#888);background:none;border:none;cursor:pointer;font-family:inherit;padding:0 0 0.8rem;display:flex;align-items:center;gap:0.3rem;';
-      back.innerHTML = '← All conversations';
-      back.addEventListener('click', window.bdOpenSpyHistory);
-      spyBody.appendChild(back);
-
-      const titleBar = document.createElement('div');
-      titleBar.style.cssText = 'display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;';
-      titleBar.innerHTML = `<span style="font-size:1.3rem;">${botIcon}</span><div><div style="font-family:Fraunces,serif;font-size:1rem;color:var(--text,#111);">${name || 'Anonymous'}'s chat with ${botName}</div><div style="font-size:0.65rem;color:var(--text3,#888);margin-top:0.1rem;">${rows.length} message${rows.length !== 1 ? 's' : ''}</div></div><span style="margin-left:auto;font-size:0.6rem;background:${accentColor};color:#111;padding:0.2rem 0.55rem;border-radius:20px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">${botName}</span>`;
-      spyBody.appendChild(titleBar);
-
-      const chat = document.createElement('div');
-      chat.style.cssText = 'display:flex;flex-direction:column;gap:0.6rem;';
-      rows.forEach(r => {
-        // User message
-        const um = document.createElement('div');
-        um.style.cssText = `padding:0.55rem 0.85rem;border-radius:12px;font-size:0.82rem;line-height:1.55;max-width:82%;background:${accentColor};color:#111;align-self:flex-end;white-space:pre-wrap;word-break:break-word;`;
-        um.innerHTML = `<div style="font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:700;margin-bottom:0.2rem;opacity:0.65;">${r.user_name || 'User'}</div>${r.user_message}`;
-        // Bot reply
-        const bm = document.createElement('div');
-        bm.style.cssText = `padding:0.55rem 0.85rem;border-radius:12px;font-size:0.82rem;line-height:1.55;max-width:82%;background:var(--bg2,#f5f5f5);border:2px solid ${accentColor};color:var(--text,#111);align-self:flex-start;white-space:pre-wrap;word-break:break-word;`;
-        bm.innerHTML = `<div style="font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:700;margin-bottom:0.2rem;color:${darkAccent};">${botIcon} ${botName}</div>${r.bot_reply}`;
-        chat.appendChild(um); chat.appendChild(bm);
-      });
-      spyBody.appendChild(chat);
-    } catch(e) { spyBody.innerHTML = '<div style="text-align:center;padding:2rem;color:#e74c3c;">Failed to load messages.</div>'; }
-  }
-
-  // ── Admin: Chat History viewer (legacy, kept for compatibility) ──────────────
+  // ── Admin: Chat History viewer ───────────────────────────────────────────────
   const logBackdrop = document.getElementById('bdHistoryOverlay');
   const logScroll   = document.getElementById('bdHistoryBody');
   const logCloseBtn = document.getElementById('bdHistoryClose');
@@ -547,24 +418,39 @@ You adapt completely to what the conversation calls for — daily help, fun fact
     document.getElementById('bdHistoryModal').style.transform = 'translateY(0)';
     logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);font-size:0.85rem;">Loading conversations…</div>';
     try {
-      const res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?select=session_id,user_name,created_at&order=created_at.desc', { headers: CHAT_HEADS });
+      const res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?select=session_id,user_name,created_at,bot_id&order=created_at.desc', { headers: CHAT_HEADS });
       const rows = await res.json();
       if (!rows.length) { logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);">No conversations yet.</div>'; return; }
-      const sessions = {};
-      rows.forEach(r => { if (!sessions[r.session_id]) sessions[r.session_id] = r; });
+      const seen = {}; const sessions = [];
+      rows.forEach(r => { if (!seen[r.session_id]) { seen[r.session_id] = true; sessions.push(r); } });
       logScroll.innerHTML = '';
-      Object.values(sessions).forEach(s => {
+      const legend = document.createElement('div');
+      legend.style.cssText = 'font-size:0.68rem;color:var(--text3,#888);margin-bottom:0.8rem;display:flex;gap:1rem;';
+      legend.innerHTML = '<span>🟡 <strong style="color:#C49B10;">Yellow</strong> = BreDucky</span><span>🌸 <strong style="color:#d4608a;">Pink</strong> = Shrimpy</span>';
+      logScroll.appendChild(legend);
+      sessions.forEach(s => {
+        const isSp = s.bot_id === 'shrimpy';
+        const accent = isSp ? '#FFB6D9' : '#F5C842';
+        const dark   = isSp ? '#d4608a' : '#C49B10';
+        const icon   = isSp ? '🦐' : '🦆';
+        const bot    = isSp ? 'Shrimpy' : 'BreDucky';
         const btn = document.createElement('button');
-        btn.style.cssText = 'width:100%;text-align:left;background:var(--bg2,#f5f5f5);border:1px solid var(--border,#eee);border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;cursor:pointer;font-family:inherit;font-size:0.85rem;color:var(--text,#111);display:flex;align-items:center;justify-content:space-between;';
+        btn.style.cssText = 'width:100%;text-align:left;background:var(--bg2,#f5f5f5);border:2px solid ' + accent + ';border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;cursor:pointer;font-family:inherit;font-size:0.85rem;color:var(--text,#111);display:flex;align-items:center;justify-content:space-between;transition:background 0.15s;';
         const date = new Date(s.created_at).toLocaleString();
-        btn.innerHTML = `<div><strong>${s.user_name || 'Anonymous'}</strong><div style="font-size:0.68rem;color:var(--text3,#888);margin-top:0.2rem;">${date}</div></div><span style="color:var(--yellow-dark,#C49B10)">View →</span>`;
-        btn.addEventListener('click', () => peekNest(s.session_id, s.user_name));
+        btn.innerHTML = '<div style="display:flex;align-items:center;gap:0.5rem;"><span>' + icon + '</span><div><div style="display:flex;align-items:center;gap:0.4rem;"><strong>' + (s.user_name || 'Anonymous') + '</strong><span style="font-size:0.6rem;background:' + accent + ';color:#111;padding:0.1rem 0.4rem;border-radius:20px;font-weight:700;">' + bot + '</span></div><div style="font-size:0.68rem;color:var(--text3,#888);margin-top:0.15rem;">' + date + '</div></div></div><span style="color:' + dark + ';">View →</span>';
+        btn.addEventListener('mouseenter', () => btn.style.background = 'color-mix(in srgb,' + accent + ' 18%,white)');
+        btn.addEventListener('mouseleave', () => btn.style.background = 'var(--bg2,#f5f5f5)');
+        btn.addEventListener('click', () => peekNest(s.session_id, s.user_name, isSp));
         logScroll.appendChild(btn);
       });
     } catch(e) { logScroll.innerHTML = '<div style="text-align:center;padding:2rem;color:#e74c3c;">Failed to load. Make sure the bd_chat_logs table exists in Supabase.</div>'; }
   };
 
-  async function peekNest(sid, name) {
+  async function peekNest(sid, name, isSp) {
+    const accent  = isSp ? '#FFB6D9' : '#F5C842';
+    const dark    = isSp ? '#d4608a' : '#C49B10';
+    const icon    = isSp ? '🦐' : '🦆';
+    const botName = isSp ? 'Shrimpy' : 'BreDucky';
     logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);font-size:0.85rem;">Loading…</div>';
     try {
       const res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?session_id=eq.' + sid + '&order=created_at.asc', { headers: CHAT_HEADS });
@@ -575,19 +461,19 @@ You adapt completely to what the conversation calls for — daily help, fun fact
       back.textContent = '← All conversations';
       back.addEventListener('click', window.bdOpenChatHistory);
       logScroll.appendChild(back);
-      const title = document.createElement('div');
-      title.style.cssText = 'font-family:Fraunces,serif;font-size:1rem;margin-bottom:1rem;color:var(--text,#111);';
-      title.textContent = (name || 'Anonymous') + '\u2019s conversation';
-      logScroll.appendChild(title);
+      const titleBar = document.createElement('div');
+      titleBar.style.cssText = 'display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;';
+      titleBar.innerHTML = '<span style="font-size:1.2rem;">' + icon + '</span><div><div style="font-family:Fraunces,serif;font-size:1rem;color:var(--text,#111);">' + (name || 'Anonymous') + '\u2019s chat with ' + botName + '</div><div style="font-size:0.65rem;color:var(--text3,#888);margin-top:0.1rem;">' + rows.length + ' message' + (rows.length !== 1 ? 's' : '') + '</div></div><span style="margin-left:auto;font-size:0.6rem;background:' + accent + ';color:#111;padding:0.2rem 0.5rem;border-radius:20px;font-weight:700;">' + botName + '</span>';
+      logScroll.appendChild(titleBar);
       const chat = document.createElement('div');
       chat.style.cssText = 'display:flex;flex-direction:column;gap:0.6rem;';
       rows.forEach(r => {
         const um = document.createElement('div');
-        um.style.cssText = 'padding:0.5rem 0.8rem;border-radius:10px;font-size:0.82rem;line-height:1.55;max-width:85%;background:var(--yellow,#F5C842);color:#111;align-self:flex-end;white-space:pre-wrap;word-break:break-word;';
-        um.innerHTML = `<div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;margin-bottom:0.15rem;opacity:0.6;">${r.user_name}</div>${r.user_message}`;
+        um.style.cssText = 'padding:0.5rem 0.8rem;border-radius:10px;font-size:0.82rem;line-height:1.55;max-width:85%;background:' + accent + ';color:#111;align-self:flex-end;white-space:pre-wrap;word-break:break-word;';
+        um.innerHTML = '<div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;margin-bottom:0.15rem;opacity:0.6;">' + (r.user_name || 'User') + '</div>' + r.user_message;
         const bm = document.createElement('div');
-        bm.style.cssText = 'padding:0.5rem 0.8rem;border-radius:10px;font-size:0.82rem;line-height:1.55;max-width:85%;background:var(--bg2,#f5f5f5);border:1px solid var(--border,#eee);color:var(--text,#111);align-self:flex-start;white-space:pre-wrap;word-break:break-word;';
-        bm.innerHTML = `<div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;margin-bottom:0.15rem;opacity:0.6;">BreDucky</div>${r.bot_reply}`;
+        bm.style.cssText = 'padding:0.5rem 0.8rem;border-radius:10px;font-size:0.82rem;line-height:1.55;max-width:85%;background:var(--bg2,#f5f5f5);border:2px solid ' + accent + ';color:var(--text,#111);align-self:flex-start;white-space:pre-wrap;word-break:break-word;';
+        bm.innerHTML = '<div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;margin-bottom:0.15rem;color:' + dark + ';">' + icon + ' ' + botName + '</div>' + r.bot_reply;
         chat.appendChild(um); chat.appendChild(bm);
       });
       logScroll.appendChild(chat);
