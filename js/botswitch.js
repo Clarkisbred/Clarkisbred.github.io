@@ -57,7 +57,6 @@
     activeBot = bot;
     localStorage.setItem('bd-active-bot', activeBot);
     applyBotUI();
-    popup.classList.remove('visible');
     setTimeout(() => openBotWindow(bot), 50);
   }
 
@@ -80,17 +79,7 @@
     activateBot(activeBot === 'duck' ? 'shrimp' : 'duck');
   }
 
-  // Hover popup buttons
-  hoverDuckBtn && hoverDuckBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    activateBot('duck');
-  });
-  hoverShrimpBtn && hoverShrimpBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    activateBot('shrimp');
-  });
-
-  // Keep existing in-header toggle working too
+  // In-header toggle
   toggle && toggle.addEventListener('click', e => {
     e.stopPropagation();
     switchBot();
