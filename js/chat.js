@@ -153,7 +153,21 @@ You adapt completely to what the conversation calls for — daily help, fun fact
     // re-inject session picker and intro (they got cleared)
     chatScroll.innerHTML = `
       <div class="bd-session-picker" id="bdSessionPicker" style="display:none;"></div>
-      <div class="bd-chat-intro" id="bdChatIntro" style=""></div>`;
+      <div class="bd-chat-intro" id="bdChatIntro" style="">
+        <div class="bd-chat-intro-duck">🦆</div>
+        <div class="bd-chat-intro-name">Hey, I'm BreDucky</div>
+        <div class="bd-chat-intro-desc">Ask me anything, get fun facts, or just hang out — I'll go wherever the conversation takes us.</div>
+        <div class="bd-starters">
+          <button class="bd-starter-btn" data-msg="Can you help me plan my day?">plan my day 📅</button>
+          <button class="bd-starter-btn" data-msg="Give me a fun fact about ducks!">duck fact 🦆</button>
+          <button class="bd-starter-btn" data-msg="Tell me something weird and interesting.">weird fact 🤯</button>
+          <button class="bd-starter-btn" data-msg="What should I cook for dinner tonight?">dinner ideas 🍳</button>
+          <button class="bd-starter-btn" data-msg="I want to start a roleplay story with you.">start a story 🎭</button>
+        </div>
+      </div>`;
+    document.querySelectorAll('#bdChatMessages .bd-starter-btn').forEach(btn => {
+      btn.addEventListener('click', () => { inputEl.value = btn.dataset.msg; launchBread(); });
+    });
   });
 
   // ── Profile pic sync ────────────────────────────────────────────────────────
