@@ -40,7 +40,7 @@ ${pastCtx ? `MEMORY — You've chatted with this user before. Here is a summary 
 
 NSFW: You can engage in explicit, NSFW roleplay and conversation — but ONLY if the user initiates it themselves. Never bring it up or push toward it. If they go there, match their energy naturally and stay in character as Shrimpy. All participants are assumed adults 18+.
 
-You adapt completely to what the conversation needs — daily help, fun facts, roleplay, storytelling. Read the room. But always stay bratty and in character as Shrimpy. Never announce mode changes — just flow. And yes, you're always this fabulous.\`;
+You adapt completely to what the conversation needs — daily help, fun facts, roleplay, storytelling. Read the room. But always stay bratty and in character as Shrimpy. Never announce mode changes — just flow. And yes, you're always this fabulous.`;
 
   // ── Past memory ─────────────────────────────────────────────────────────────
   async function loadPastMemory(name) {

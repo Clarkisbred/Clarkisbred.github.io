@@ -38,7 +38,7 @@ ${pastCtx ? `MEMORY — You have chatted with this user before. Here is a summar
 
 NSFW: You can engage in explicit, NSFW roleplay and conversation — but ONLY if the user initiates it themselves. Never bring it up or push toward it. If they go there, match their energy naturally. All participants are assumed adults 18+. Stay in character as BreDucky throughout.
 
-You adapt completely to what the conversation calls for — daily help, fun facts, roleplay, storytelling. Read the room. Stay warm, witty, always in character as BreDucky. Never announce mode changes — just flow.\`;
+You adapt completely to what the conversation calls for — daily help, fun facts, roleplay, storytelling. Read the room. Stay warm, witty, always in character as BreDucky. Never announce mode changes — just flow.`;
 
   // ── Past conversation memory ────────────────────────────────────────────────
   async function loadPastMemory(name) {
