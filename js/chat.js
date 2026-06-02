@@ -418,18 +418,27 @@ You adapt completely to what the conversation calls for — daily help, fun fact
     document.getElementById('bdHistoryModal').style.transform = 'translateY(0)';
     logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);font-size:0.85rem;">Loading conversations…</div>';
     try {
-      const res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?select=session_id,user_name,created_at,bot_id&order=created_at.desc', { headers: CHAT_HEADS });
-      const rows = await res.json();
+      const [duckRes, spRes] = await Promise.all([
+        fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?select=session_id,user_name,created_at&order=created_at.desc', { headers: CHAT_HEADS }),
+        fetch(SB_URL + '/rest/v1/sp_chat_logs?select=session_id,user_name,created_at&order=created_at.desc', { headers: CHAT_HEADS })
+      ]);
+      const duckRows = await duckRes.json();
+      const spRows   = await spRes.json();
+      const allRows  = [
+        ...(Array.isArray(duckRows) ? duckRows.map(r => ({...r, _bot:'duck'})) : []),
+        ...(Array.isArray(spRows)   ? spRows.map(r => ({...r, _bot:'shrimpy'})) : [])
+      ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+      const rows = allRows;
       if (!rows.length) { logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);">No conversations yet.</div>'; return; }
       const seen = {}; const sessions = [];
-      rows.forEach(r => { if (!seen[r.session_id]) { seen[r.session_id] = true; sessions.push(r); } });
+      rows.forEach(r => { const key = r.session_id + '|' + r._bot; if (!seen[key]) { seen[key] = true; sessions.push(r); } });
       logScroll.innerHTML = '';
       const legend = document.createElement('div');
       legend.style.cssText = 'font-size:0.68rem;color:var(--text3,#888);margin-bottom:0.8rem;display:flex;gap:1rem;';
       legend.innerHTML = '<span>🟡 <strong style="color:#C49B10;">Yellow</strong> = BreDucky</span><span>🌸 <strong style="color:#d4608a;">Pink</strong> = Shrimpy</span>';
       logScroll.appendChild(legend);
       sessions.forEach(s => {
-        const isSp = s.bot_id === 'shrimpy';
+        const isSp = s._bot === 'shrimpy';
         const accent = isSp ? '#FFB6D9' : '#F5C842';
         const dark   = isSp ? '#d4608a' : '#C49B10';
         const icon   = isSp ? '🦐' : '🦆';
@@ -453,7 +462,8 @@ You adapt completely to what the conversation calls for — daily help, fun fact
     const botName = isSp ? 'Shrimpy' : 'BreDucky';
     logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);font-size:0.85rem;">Loading…</div>';
     try {
-      const res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?session_id=eq.' + sid + '&order=created_at.asc', { headers: CHAT_HEADS });
+      const tbl = isSp ? 'sp_chat_logs' : CHAT_LOG_TABLE;
+      const res = await fetch(SB_URL + '/rest/v1/' + tbl + '?session_id=eq.' + sid + '&order=created_at.asc', { headers: CHAT_HEADS });
       const rows = await res.json();
       logScroll.innerHTML = '';
       const back = document.createElement('button');

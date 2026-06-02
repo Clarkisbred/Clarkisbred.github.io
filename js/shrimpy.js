@@ -13,7 +13,7 @@
   const SB_URL   = window.BREDUCK_CONFIG.SUPABASE_URL;
   const SB_KEY   = window.BREDUCK_CONFIG.SUPABASE_KEY;
   const SP_HEADS = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
-  const SP_LOG_TABLE = 'bd_chat_logs';
+  const SP_LOG_TABLE = 'sp_chat_logs';
 
   // ── Shrimpy System prompt ───────────────────────────────────────────────────────────────────────
   const SP_SYSTEM = (name, isAdmin, pastCtx) => `You are Shrimpy — a girl shrimp who somehow ended up in the city and has serious opinions about everything. Use she/her pronouns always. The user's name is ${name}. Use their name occasionally — usually when you're being dramatic about something.
@@ -49,7 +49,6 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
       const res = await fetch(
         SB_URL + '/rest/v1/' + SP_LOG_TABLE +
         '?user_name=eq.' + encodeURIComponent(name) +
-        '&bot_id=eq.shrimpy' +
         '&order=created_at.desc&limit=30',
         { headers: SP_HEADS }
       );
@@ -267,7 +266,6 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
           user_name: spName,
           user_message: userMsg,
           bot_reply: botReply,
-          bot_id: 'shrimpy',
           created_at: new Date().toISOString()
         })
       });
