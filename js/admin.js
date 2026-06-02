@@ -168,37 +168,11 @@
     ttsBtn.textContent = sessionStorage.getItem('breduck-tts') === '1' ? '🔊 TTS On' : '🔇 TTS Off';
     ttsBtn.addEventListener('click', () => { if (window.bdToggleTTS) window.bdToggleTTS(); });
 
-    // Spy Chat History button
-    const spyDivider = document.createElement('div');
-    spyDivider.className = 'bd-panel-divider';
-    spyDivider.style.margin = '1rem 0 0.8rem';
-
-    const spyLabel = document.createElement('div');
-    spyLabel.className = 'bd-panel-label';
-    spyLabel.textContent = 'Spy Mode 🕵️';
-    spyLabel.style.marginBottom = '0.6rem';
-
-    const spyBtn = document.createElement('button');
-    spyBtn.id = 'bdSpyBtn';
-    spyBtn.className = 'admin-btn-primary';
-    spyBtn.style.cssText = 'width:100%;justify-content:center;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.4rem;background:linear-gradient(135deg,#F5C842 50%,#FFB6D9 50%);color:#111;border:none;padding:0.65rem 1.2rem;font-family:inherit;font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;';
-    spyBtn.innerHTML = '🕵️ Spy Chat History';
-    spyBtn.addEventListener('click', () => { ditchAdminPanel(); if (window.bdOpenSpyHistory) window.bdOpenSpyHistory(); });
-
     const hint = document.createElement('div');
     hint.className = 'bd-panel-hint';
     hint.textContent = 'TTS: BreDucky speaks replies aloud. Mic: talk to him directly.';
 
-    const spyHint = document.createElement('div');
-    spyHint.className = 'bd-panel-hint';
-    spyHint.style.marginTop = '0.3rem';
-    spyHint.innerHTML = '<span style="color:#C49B10;font-weight:600;">Yellow</span> = BreDucky · <span style="color:#d4608a;font-weight:600;">Pink</span> = Shrimpy';
-
-    panel.insertBefore(spyHint, logoutBtn);
-    panel.insertBefore(spyBtn, spyHint);
-    panel.insertBefore(spyLabel, spyBtn);
-    panel.insertBefore(spyDivider, spyLabel);
-    panel.insertBefore(hint, spyDivider);
+    panel.insertBefore(hint, logoutBtn);
     panel.insertBefore(ttsBtn, hint);
     panel.insertBefore(micBtn, ttsBtn);
     panel.insertBefore(takeoverBtn, micBtn);

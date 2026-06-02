@@ -375,6 +375,7 @@
   window.bdOpenTakeover  = openTakeover;
   window.bdCloseTakeover = closeTakeover;
   window.getActiveBot    = () => activeBot;
+  window.activateBot     = activateBot;
 
   // Apply initial UI
   applyBotUI();
