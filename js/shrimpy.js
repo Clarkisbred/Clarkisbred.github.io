@@ -13,7 +13,7 @@
   const SB_URL   = window.BREDUCK_CONFIG.SUPABASE_URL;
   const SB_KEY   = window.BREDUCK_CONFIG.SUPABASE_KEY;
   const SP_HEADS = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
-  const SP_LOG_TABLE = 'sp_chat_logs';
+  const SP_LOG_TABLE = 'bd_chat_logs';
 
   // ── Shrimpy System prompt ───────────────────────────────────────────────────────────────────────
   const SP_SYSTEM = (name, isAdmin, pastCtx) => `You are Shrimpy — a girl shrimp who somehow ended up in the city and has serious opinions about everything. Use she/her pronouns always. The user's name is ${name}. Use their name occasionally — usually when you're being dramatic about something.
@@ -49,6 +49,7 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
       const res = await fetch(
         SB_URL + '/rest/v1/' + SP_LOG_TABLE +
         '?user_name=eq.' + encodeURIComponent(name) +
+        '&bot_id=eq.shrimpy' +
         '&order=created_at.desc&limit=30',
         { headers: SP_HEADS }
       );
@@ -73,6 +74,14 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
   let spOpen    = false;
   const SP_CAP  = 20;
   let spMemory  = '';
+  // ── Takeover state (per-session) ─────────────────────────────────────────
+  let spTakenOver = false;
+  function isSPTakenOver() { return spTakenOver; }
+  function setSPTakeover(val) {
+    spTakenOver = val;
+    const banner = document.getElementById('spTakeoverChatBanner');
+    if (banner) banner.style.display = val ? 'flex' : 'none';
+  }
 
   if (!spSession) {
     spSession = 'sp_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
@@ -104,6 +113,16 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
   const spInput     = document.getElementById('spChatInput');
   const spSendBtn   = document.getElementById('spChatSend');
   const spCloseBtn  = document.getElementById('spChatClose');
+
+  // ── Takeover banner (injected into shrimpy chat window) ───────────────────
+  (function injectSPTakeoverBanner() {
+    if (document.getElementById('spTakeoverChatBanner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'spTakeoverChatBanner';
+    banner.style.cssText = 'display:none;align-items:center;gap:0.5rem;background:#FF6B9D;color:#fff;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.45rem 1rem;border-bottom:1px solid rgba(0,0,0,0.15);justify-content:center;flex-shrink:0;';
+    banner.innerHTML = '🎭 Clark is in control · AI responses paused';
+    spWindow && spWindow.insertBefore(banner, spWindow.querySelector('.bd-chat-messages'));
+  })();
   const spPicker    = document.getElementById('spSessionPicker');
   const spIntro     = document.getElementById('spChatIntro');
   const spContBtn   = document.getElementById('spContinueChat');
@@ -266,6 +285,7 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
           user_name: spName,
           user_message: userMsg,
           bot_reply: botReply,
+          bot_id: 'shrimpy',
           created_at: new Date().toISOString()
         })
       });
@@ -276,6 +296,18 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
   async function spLaunch() {
     const text = spInput.value.trim();
     if (!text || spBusy) return;
+
+    // ── Takeover mode: show user message, suppress AI ────────────────────
+    if (isSPTakenOver()) {
+      spInput.value = '';
+      spInput.style.height = 'auto';
+      spAppend('user', text);
+      spLog.push({ role: 'user', content: text });
+      stashSP();
+      if (window._bdTakeoverOnUserMsg) window._bdTakeoverOnUserMsg('shrimp', text);
+      return;
+    }
+
     spBusy = true;
     spSendBtn.disabled = true;
     spInput.value = '';
@@ -349,13 +381,16 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
   window.spIsOpen = () => spOpen;
   window.spAppendMessage = spAppend;
   window.spGetLog = () => spLog;
+  window.spGetSession = () => spSession;
+  window.spSetTakeover = setSPTakeover;
+  window.spIsTakenOver = isSPTakenOver;
   window.spInjectReply = function(text) {
     spLog.push({ role: 'assistant', content: text });
     stashSP();
     if (!spOpen) openSP();
     spAppend('assistant', text);
     spSaveLog('[CLARK TAKEOVER]', text);
+    if (window._bdTakeoverOnBotMsg) window._bdTakeoverOnBotMsg('shrimp', text);
   };
   window.spSetName = (n) => { spName = n; };
-  window.spGetSession = () => spSession;
 })();

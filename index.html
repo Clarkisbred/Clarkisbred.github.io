@@ -462,7 +462,8 @@
   </div>
 </div>
 
-<!-- secrets loaded first -->
+<!-- secrets loaded first — config.local.js has real values (gitignored), config.js is the safe fallback -->
+<script src="config.local.js"></script>
 <script src="config.js"></script>
 <script src="js/main.js"></script>
 <script src="js/admin.js"></script>

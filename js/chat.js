@@ -97,6 +97,18 @@ You adapt completely to what the conversation calls for — daily help, fun fact
   let nestOpen  = false;
   const CHAT_CAP = 20;
   let pastMemory = '';
+  // ── Takeover state (per-session, not global) ─────────────────────────────
+  // When Clark takes over THIS duck session, AI replies are suppressed.
+  // The flag lives in sessionStorage keyed to nestId so only this tab/session
+  // is affected — other users' sessions continue normally.
+  let duckTakenOver = false;
+  function isDuckTakenOver() { return duckTakenOver; }
+  function setDuckTakeover(val) {
+    duckTakenOver = val;
+    // Show a subtle "Clark is here" banner inside the chat when active
+    const banner = document.getElementById('bdTakeoverChatBanner');
+    if (banner) banner.style.display = val ? 'flex' : 'none';
+  }
 
   if (!nestId) {
     nestId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
@@ -135,6 +147,16 @@ You adapt completely to what the conversation calls for — daily help, fun fact
   const keepSwimmingBtn= document.getElementById('bdContinueChat');
   const freshPondBtn   = document.getElementById('bdNewChat');
 
+  // ── Takeover banner (injected into duck chat window) ───────────────────────
+  (function injectTakeoverBanner() {
+    if (document.getElementById('bdTakeoverChatBanner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'bdTakeoverChatBanner';
+    banner.style.cssText = 'display:none;align-items:center;gap:0.5rem;background:#F5C842;color:#111;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.45rem 1rem;border-bottom:1px solid rgba(0,0,0,0.1);justify-content:center;flex-shrink:0;';
+    banner.innerHTML = '🎭 Clark is in control · AI responses paused';
+    chatNest && chatNest.insertBefore(banner, chatNest.querySelector('.bd-chat-messages'));
+  })();
+
   // ── Session picker ──────────────────────────────────────────────────────────
   function showNestPicker() { nestPicker.style.display = 'flex'; pondIntro.style.display = 'none'; }
   function hideNestPicker() { nestPicker.style.display = 'none'; }
@@ -153,21 +175,7 @@ You adapt completely to what the conversation calls for — daily help, fun fact
     // re-inject session picker and intro (they got cleared)
     chatScroll.innerHTML = `
       <div class="bd-session-picker" id="bdSessionPicker" style="display:none;"></div>
-      <div class="bd-chat-intro" id="bdChatIntro" style="">
-        <div class="bd-chat-intro-duck">🦆</div>
-        <div class="bd-chat-intro-name">Hey, I'm BreDucky</div>
-        <div class="bd-chat-intro-desc">Ask me anything, get fun facts, or just hang out — I'll go wherever the conversation takes us.</div>
-        <div class="bd-starters">
-          <button class="bd-starter-btn" data-msg="Can you help me plan my day?">plan my day 📅</button>
-          <button class="bd-starter-btn" data-msg="Give me a fun fact about ducks!">duck fact 🦆</button>
-          <button class="bd-starter-btn" data-msg="Tell me something weird and interesting.">weird fact 🤯</button>
-          <button class="bd-starter-btn" data-msg="What should I cook for dinner tonight?">dinner ideas 🍳</button>
-          <button class="bd-starter-btn" data-msg="I want to start a roleplay story with you.">start a story 🎭</button>
-        </div>
-      </div>`;
-    document.querySelectorAll('#bdChatMessages .bd-starter-btn').forEach(btn => {
-      btn.addEventListener('click', () => { inputEl.value = btn.dataset.msg; launchBread(); });
-    });
+      <div class="bd-chat-intro" id="bdChatIntro" style=""></div>`;
   });
 
   // ── Profile pic sync ────────────────────────────────────────────────────────
@@ -355,6 +363,19 @@ You adapt completely to what the conversation calls for — daily help, fun fact
   async function launchBread() {
     const text = inputEl.value.trim();
     if (!text || duckBusy) return;
+
+    // ── Takeover mode: user messages still appear, but AI stays silent ─────
+    if (isDuckTakenOver()) {
+      inputEl.value = '';
+      inputEl.style.height = 'auto';
+      appendMessage('user', text);
+      chatLog.push({ role: 'user', content: text });
+      stashFeathers();
+      // Let the takeover panel know a new user message arrived
+      if (window._bdTakeoverOnUserMsg) window._bdTakeoverOnUserMsg('duck', text);
+      return;
+    }
+
     duckBusy = true;
     throwBtn.disabled = true;
     inputEl.value = '';
@@ -432,27 +453,18 @@ You adapt completely to what the conversation calls for — daily help, fun fact
     document.getElementById('bdHistoryModal').style.transform = 'translateY(0)';
     logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);font-size:0.85rem;">Loading conversations…</div>';
     try {
-      const [duckRes, spRes] = await Promise.all([
-        fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?select=session_id,user_name,created_at&order=created_at.desc', { headers: CHAT_HEADS }),
-        fetch(SB_URL + '/rest/v1/sp_chat_logs?select=session_id,user_name,created_at&order=created_at.desc', { headers: CHAT_HEADS })
-      ]);
-      const duckRows = await duckRes.json();
-      const spRows   = await spRes.json();
-      const allRows  = [
-        ...(Array.isArray(duckRows) ? duckRows.map(r => ({...r, _bot:'duck'})) : []),
-        ...(Array.isArray(spRows)   ? spRows.map(r => ({...r, _bot:'shrimpy'})) : [])
-      ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-      const rows = allRows;
+      const res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?select=session_id,user_name,created_at,bot_id&order=created_at.desc', { headers: CHAT_HEADS });
+      const rows = await res.json();
       if (!rows.length) { logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);">No conversations yet.</div>'; return; }
       const seen = {}; const sessions = [];
-      rows.forEach(r => { const key = r.session_id + '|' + r._bot; if (!seen[key]) { seen[key] = true; sessions.push(r); } });
+      rows.forEach(r => { if (!seen[r.session_id]) { seen[r.session_id] = true; sessions.push(r); } });
       logScroll.innerHTML = '';
       const legend = document.createElement('div');
       legend.style.cssText = 'font-size:0.68rem;color:var(--text3,#888);margin-bottom:0.8rem;display:flex;gap:1rem;';
       legend.innerHTML = '<span>🟡 <strong style="color:#C49B10;">Yellow</strong> = BreDucky</span><span>🌸 <strong style="color:#d4608a;">Pink</strong> = Shrimpy</span>';
       logScroll.appendChild(legend);
       sessions.forEach(s => {
-        const isSp = s._bot === 'shrimpy';
+        const isSp = s.bot_id === 'shrimpy';
         const accent = isSp ? '#FFB6D9' : '#F5C842';
         const dark   = isSp ? '#d4608a' : '#C49B10';
         const icon   = isSp ? '🦐' : '🦆';
@@ -476,8 +488,7 @@ You adapt completely to what the conversation calls for — daily help, fun fact
     const botName = isSp ? 'Shrimpy' : 'BreDucky';
     logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);font-size:0.85rem;">Loading…</div>';
     try {
-      const tbl = isSp ? 'sp_chat_logs' : CHAT_LOG_TABLE;
-      const res = await fetch(SB_URL + '/rest/v1/' + tbl + '?session_id=eq.' + sid + '&order=created_at.asc', { headers: CHAT_HEADS });
+      const res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?session_id=eq.' + sid + '&order=created_at.asc', { headers: CHAT_HEADS });
       const rows = await res.json();
       logScroll.innerHTML = '';
       const back = document.createElement('button');
@@ -560,11 +571,16 @@ You adapt completely to what the conversation calls for — daily help, fun fact
   window.bdCloseDuckChat = closeDuckChat;
   window.bdSetDuckName = (n) => { duckName = n; };
   window.bdGetChatLog = () => chatLog;
+  window.bdGetDuckSessionId = () => nestId;
+  window.bdSetTakeover = setDuckTakeover;
+  window.bdIsTakenOver = isDuckTakenOver;
   window.bdInjectReply = function(text) {
     chatLog.push({ role: 'assistant', content: text });
     stashFeathers();
     if (!nestOpen) openDuckChat();
     appendMessage('assistant', text);
     saveLog('[CLARK TAKEOVER]', text);
+    // Notify takeover panel to refresh
+    if (window._bdTakeoverOnBotMsg) window._bdTakeoverOnBotMsg('duck', text);
   };
 })();
