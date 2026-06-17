@@ -97,15 +97,11 @@ You adapt completely to what the conversation calls for — daily help, fun fact
   let nestOpen  = false;
   const CHAT_CAP = 20;
   let pastMemory = '';
-  // ── Takeover state (per-session, not global) ─────────────────────────────
-  // When Clark takes over THIS duck session, AI replies are suppressed.
-  // The flag lives in sessionStorage keyed to nestId so only this tab/session
-  // is affected — other users' sessions continue normally.
+  // ── Takeover: suppress AI for this session only ──────────────────────────
   let duckTakenOver = false;
   function isDuckTakenOver() { return duckTakenOver; }
   function setDuckTakeover(val) {
     duckTakenOver = val;
-    // Show a subtle "Clark is here" banner inside the chat when active
     const banner = document.getElementById('bdTakeoverChatBanner');
     if (banner) banner.style.display = val ? 'flex' : 'none';
   }
@@ -147,14 +143,15 @@ You adapt completely to what the conversation calls for — daily help, fun fact
   const keepSwimmingBtn= document.getElementById('bdContinueChat');
   const freshPondBtn   = document.getElementById('bdNewChat');
 
-  // ── Takeover banner (injected into duck chat window) ───────────────────────
-  (function injectTakeoverBanner() {
+  // ── Takeover banner ────────────────────────────────────────────────────────
+  (function() {
     if (document.getElementById('bdTakeoverChatBanner')) return;
     const banner = document.createElement('div');
     banner.id = 'bdTakeoverChatBanner';
     banner.style.cssText = 'display:none;align-items:center;gap:0.5rem;background:#F5C842;color:#111;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.45rem 1rem;border-bottom:1px solid rgba(0,0,0,0.1);justify-content:center;flex-shrink:0;';
-    banner.innerHTML = '🎭 Clark is in control · AI responses paused';
-    chatNest && chatNest.insertBefore(banner, chatNest.querySelector('.bd-chat-messages'));
+    banner.innerHTML = '\uD83C\uDFAD Clark is in control · AI responses paused';
+    const chatNestEl = document.getElementById('bdChatWindow');
+    chatNestEl && chatNestEl.insertBefore(banner, chatNestEl.querySelector('.bd-chat-messages'));
   })();
 
   // ── Session picker ──────────────────────────────────────────────────────────
@@ -363,19 +360,14 @@ You adapt completely to what the conversation calls for — daily help, fun fact
   async function launchBread() {
     const text = inputEl.value.trim();
     if (!text || duckBusy) return;
-
-    // ── Takeover mode: user messages still appear, but AI stays silent ─────
     if (isDuckTakenOver()) {
-      inputEl.value = '';
-      inputEl.style.height = 'auto';
+      inputEl.value = ''; inputEl.style.height = 'auto';
       appendMessage('user', text);
       chatLog.push({ role: 'user', content: text });
       stashFeathers();
-      // Let the takeover panel know a new user message arrived
       if (window._bdTakeoverOnUserMsg) window._bdTakeoverOnUserMsg('duck', text);
       return;
     }
-
     duckBusy = true;
     throwBtn.disabled = true;
     inputEl.value = '';
@@ -571,7 +563,6 @@ You adapt completely to what the conversation calls for — daily help, fun fact
   window.bdCloseDuckChat = closeDuckChat;
   window.bdSetDuckName = (n) => { duckName = n; };
   window.bdGetChatLog = () => chatLog;
-  window.bdGetDuckSessionId = () => nestId;
   window.bdSetTakeover = setDuckTakeover;
   window.bdIsTakenOver = isDuckTakenOver;
   window.bdInjectReply = function(text) {
@@ -580,7 +571,6 @@ You adapt completely to what the conversation calls for — daily help, fun fact
     if (!nestOpen) openDuckChat();
     appendMessage('assistant', text);
     saveLog('[CLARK TAKEOVER]', text);
-    // Notify takeover panel to refresh
     if (window._bdTakeoverOnBotMsg) window._bdTakeoverOnBotMsg('duck', text);
   };
 })();

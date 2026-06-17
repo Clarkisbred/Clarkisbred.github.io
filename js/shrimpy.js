@@ -74,7 +74,6 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
   let spOpen    = false;
   const SP_CAP  = 20;
   let spMemory  = '';
-  // ── Takeover state (per-session) ─────────────────────────────────────────
   let spTakenOver = false;
   function isSPTakenOver() { return spTakenOver; }
   function setSPTakeover(val) {
@@ -113,20 +112,21 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
   const spInput     = document.getElementById('spChatInput');
   const spSendBtn   = document.getElementById('spChatSend');
   const spCloseBtn  = document.getElementById('spChatClose');
-
-  // ── Takeover banner (injected into shrimpy chat window) ───────────────────
-  (function injectSPTakeoverBanner() {
-    if (document.getElementById('spTakeoverChatBanner')) return;
-    const banner = document.createElement('div');
-    banner.id = 'spTakeoverChatBanner';
-    banner.style.cssText = 'display:none;align-items:center;gap:0.5rem;background:#FF6B9D;color:#fff;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.45rem 1rem;border-bottom:1px solid rgba(0,0,0,0.15);justify-content:center;flex-shrink:0;';
-    banner.innerHTML = '🎭 Clark is in control · AI responses paused';
-    spWindow && spWindow.insertBefore(banner, spWindow.querySelector('.bd-chat-messages'));
-  })();
   const spPicker    = document.getElementById('spSessionPicker');
   const spIntro     = document.getElementById('spChatIntro');
   const spContBtn   = document.getElementById('spContinueChat');
   const spNewBtn    = document.getElementById('spNewChat');
+
+  // ── Takeover banner ────────────────────────────────────────────────────────
+  (function() {
+    if (document.getElementById('spTakeoverChatBanner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'spTakeoverChatBanner';
+    banner.style.cssText = 'display:none;align-items:center;gap:0.5rem;background:#FF6B9D;color:#fff;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.45rem 1rem;border-bottom:1px solid rgba(0,0,0,0.15);justify-content:center;flex-shrink:0;';
+    banner.innerHTML = '\uD83C\uDFAD Clark is in control · AI responses paused';
+    const spWin = document.getElementById('spChatWindow');
+    spWin && spWin.insertBefore(banner, spWin.querySelector('.bd-chat-messages'));
+  })();
 
   // ── Session picker ──────────────────────────────────────────────────────────
   spContBtn && spContBtn.addEventListener('click', () => {
@@ -296,18 +296,14 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
   async function spLaunch() {
     const text = spInput.value.trim();
     if (!text || spBusy) return;
-
-    // ── Takeover mode: show user message, suppress AI ────────────────────
     if (isSPTakenOver()) {
-      spInput.value = '';
-      spInput.style.height = 'auto';
+      spInput.value = ''; spInput.style.height = 'auto';
       spAppend('user', text);
       spLog.push({ role: 'user', content: text });
       stashSP();
       if (window._bdTakeoverOnUserMsg) window._bdTakeoverOnUserMsg('shrimp', text);
       return;
     }
-
     spBusy = true;
     spSendBtn.disabled = true;
     spInput.value = '';
@@ -381,9 +377,6 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
   window.spIsOpen = () => spOpen;
   window.spAppendMessage = spAppend;
   window.spGetLog = () => spLog;
-  window.spGetSession = () => spSession;
-  window.spSetTakeover = setSPTakeover;
-  window.spIsTakenOver = isSPTakenOver;
   window.spInjectReply = function(text) {
     spLog.push({ role: 'assistant', content: text });
     stashSP();
@@ -393,4 +386,7 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
     if (window._bdTakeoverOnBotMsg) window._bdTakeoverOnBotMsg('shrimp', text);
   };
   window.spSetName = (n) => { spName = n; };
+  window.spGetSession = () => spSession;
+  window.spSetTakeover = setSPTakeover;
+  window.spIsTakenOver = isSPTakenOver;
 })();
