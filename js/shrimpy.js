@@ -258,19 +258,29 @@ You adapt completely to what the conversation needs — daily help, fun facts, r
 
   // ── Supabase log ─────────────────────────────────────────────────────────────
   async function spSaveLog(userMsg, botReply) {
+    const payload = {
+      session_id: spSession,
+      user_name: spName,
+      user_message: userMsg,
+      bot_reply: botReply,
+      bot_id: 'shrimpy',
+      created_at: new Date().toISOString()
+    };
     try {
-      await fetch(SB_URL + '/rest/v1/' + SP_LOG_TABLE, {
+      let res = await fetch(SB_URL + '/rest/v1/' + SP_LOG_TABLE, {
         method: 'POST',
         headers: Object.assign({}, SP_HEADS, { 'Prefer': 'return=minimal' }),
-        body: JSON.stringify({
-          session_id: spSession,
-          user_name: spName,
-          user_message: userMsg,
-          bot_reply: botReply,
-          bot_id: 'shrimpy',
-          created_at: new Date().toISOString()
-        })
+        body: JSON.stringify(payload)
       });
+      // If bot_id column doesn't exist yet, retry without it
+      if (!res.ok) {
+        const { bot_id, ...payloadNoBotId } = payload;
+        await fetch(SB_URL + '/rest/v1/' + SP_LOG_TABLE, {
+          method: 'POST',
+          headers: Object.assign({}, SP_HEADS, { 'Prefer': 'return=minimal' }),
+          body: JSON.stringify(payloadNoBotId)
+        });
+      }
     } catch(e) {}
   }
 

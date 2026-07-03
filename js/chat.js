@@ -322,18 +322,29 @@ You adapt completely to what the conversation calls for — daily help, fun fact
 
   // ── Supabase log ────────────────────────────────────────────────────────────
   async function saveLog(userMsg, botReply) {
+    const payload = {
+      session_id: nestId,
+      user_name: duckName,
+      user_message: userMsg,
+      bot_reply: botReply,
+      bot_id: 'breducky',
+      created_at: new Date().toISOString()
+    };
     try {
-      await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE, {
+      let res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE, {
         method: 'POST',
         headers: Object.assign({}, CHAT_HEADS, { 'Prefer': 'return=minimal' }),
-        body: JSON.stringify({
-          session_id: nestId,
-          user_name: duckName,
-          user_message: userMsg,
-          bot_reply: botReply,
-          created_at: new Date().toISOString()
-        })
+        body: JSON.stringify(payload)
       });
+      // If bot_id column doesn't exist yet, retry without it
+      if (!res.ok) {
+        const { bot_id, ...payloadNoBotId } = payload;
+        await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE, {
+          method: 'POST',
+          headers: Object.assign({}, CHAT_HEADS, { 'Prefer': 'return=minimal' }),
+          body: JSON.stringify(payloadNoBotId)
+        });
+      }
     } catch(e) {}
   }
 
