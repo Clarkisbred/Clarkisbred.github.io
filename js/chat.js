@@ -446,7 +446,7 @@ You adapt completely to what the conversation calls for — daily help, fun fact
       legend.innerHTML = '<span>🟡 <strong style="color:#C49B10;">Yellow</strong> = BreDucky</span><span>🌸 <strong style="color:#d4608a;">Pink</strong> = Shrimpy</span>';
       logScroll.appendChild(legend);
       sessions.forEach(s => {
-      const isSp = s.bot_id === 'shrimpy';
+      const isSp = s.bot_id === 'shrimpy' || (!s.bot_id && typeof s.session_id === 'string' && s.session_id.startsWith('sp_'));
         const accent = isSp ? '#FFB6D9' : '#F5C842';
         const dark   = isSp ? '#d4608a' : '#C49B10';
         const icon   = isSp ? '🦐' : '🦆';
