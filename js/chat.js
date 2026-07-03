@@ -418,9 +418,15 @@ You adapt completely to what the conversation calls for — daily help, fun fact
     document.getElementById('bdHistoryModal').style.transform = 'translateY(0)';
     logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);font-size:0.85rem;">Loading conversations…</div>';
     try {
-      const res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?select=session_id,user_name,created_at,bot_id&order=created_at.desc', { headers: CHAT_HEADS });
-      const rows = await res.json();
-      if (!rows.length) { logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);">No conversations yet.</div>'; return; }
+      // Try with bot_id first; fall back to without it if the column doesn't exist
+      let res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?select=session_id,user_name,created_at,bot_id&order=created_at.desc', { headers: CHAT_HEADS });
+      let rows = await res.json();
+      // If bot_id column doesn't exist, Supabase returns an error object — retry without it
+      if (!Array.isArray(rows)) {
+        res = await fetch(SB_URL + '/rest/v1/' + CHAT_LOG_TABLE + '?select=session_id,user_name,created_at&order=created_at.desc', { headers: CHAT_HEADS });
+        rows = await res.json();
+      }
+      if (!Array.isArray(rows) || !rows.length) { logScroll.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text3,#888);">No conversations yet.</div>'; return; }
       const seen = {}; const sessions = [];
       rows.forEach(r => { if (!seen[r.session_id]) { seen[r.session_id] = true; sessions.push(r); } });
       logScroll.innerHTML = '';
@@ -429,7 +435,7 @@ You adapt completely to what the conversation calls for — daily help, fun fact
       legend.innerHTML = '<span>🟡 <strong style="color:#C49B10;">Yellow</strong> = BreDucky</span><span>🌸 <strong style="color:#d4608a;">Pink</strong> = Shrimpy</span>';
       logScroll.appendChild(legend);
       sessions.forEach(s => {
-        const isSp = s.bot_id === 'shrimpy';
+      const isSp = s.bot_id === 'shrimpy';
         const accent = isSp ? '#FFB6D9' : '#F5C842';
         const dark   = isSp ? '#d4608a' : '#C49B10';
         const icon   = isSp ? '🦐' : '🦆';
